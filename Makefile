@@ -7,7 +7,6 @@ doc:
 	$(ECHO) ${SEPARATOR}
 	$(ECHO) "Create documentation..."
 	$(ECHO) ${SEPARATOR}
-	@-mkdir -p doc/
 	lein doc
 
 # Copy generated docs into gh-pages branch
@@ -15,17 +14,18 @@ prepare_docs: doc
 	$(ECHO) ${SEPARATOR}
 	$(ECHO) "Preparing docs in gh-pages branch. . ."
 	$(ECHO) ${SEPARATOR}
-	@-mkdir -p .git/_deploy/
-	rm -rf .git/_deploy/*
-	cp doc/* .git/_deploy/
+	rm -rf .git/_deploy
+	cp -R doc .git/_deploy
+	git stash -q
 	git checkout gh-pages
-	cp .git/_deploy/* .
-	-git commit -am "Update documentation."
-	@git checkout - > /dev/null
+	cp -R .git/_deploy/* .
+	git add .
+	-git commit -m "Update documentation."
+	@git checkout - > /dev/null && git stash pop -q
 	$(ECHO)
 
 # Deploy prepared documents
-deploy_docs: prepare_docs
+deploy_docs:
 	$(ECHO) ${SEPARATOR}
 	$(ECHO) "Attempting deployment to origin's ${DOCS_BRANCH} branch."
 	$(ECHO) ${SEPARATOR}
