@@ -1,16 +1,18 @@
 (ns manners.victorian
   (:require [clojure.string :as s]))
 
+;; Predicates are wrapped with this function so that if a predicate causes an
+;; exception to be thrown it does not break the error checking.
 (defn- wrap-try
   "Create a function which has the same behaviour as func but catches all
-   exceptions returning nil if one is received."
+  exceptions returning nil if one is received."
   [func]
   (fn [& more]
     (try (apply func more) (catch Exception _))))
 
 (defn- unmemoized-coach
   "Return a memoized function which takes a value to run the given etiquette
-   on."
+  on."
   [etiquette]
   {:pre [(sequential? etiquette)]}
   (memoize (fn [value]
@@ -18,9 +20,11 @@
                    :when ((-> predicate wrap-try complement) value)]
                (apply str message)))))
 
+;; The actual definition of coach is memoized so that when the same etiquette is
+;; passed in we do not generate a new memoized function.
 (def coach
   "Create a function from a sequence of validators that returns a sequence of
-   bad manners."
+  bad manners."
   (memoize unmemoized-coach))
 
 (defn bad-manners
@@ -30,7 +34,7 @@
 
 (defn proper?
   "A predicate to determine if the given value has any bad manners according to the
-   validations."
+  validations."
   [etiquette value]
   (empty? (bad-manners etiquette value)))
 
@@ -48,7 +52,7 @@
 
 (defn avow!
   "Throw an AssertionError if there are any bad manners found on the given value with
-   the given validations."
+  the given validations."
   ([prefix etiquette value] (falter prefix (bad-manners etiquette value)))
   ([etiquette value] (avow! nil etiquette value)))
 
