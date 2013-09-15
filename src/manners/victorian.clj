@@ -51,6 +51,7 @@
   ([etiquette value] (avow! nil etiquette value)))
 
 (defmacro defmannerisms
+  "Define helper functions for validating using a consistent etiquette."
   [obj-sym & etiquette]
   (let [bad-manners-sym (symbol (str "bad-" obj-sym "-manners"))
         proper?-sym (symbol (str "proper-" obj-sym \?))
