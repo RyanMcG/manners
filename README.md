@@ -7,18 +7,17 @@ A validation library built on using predicates properly.
 This library is the result of reading [Functional JavaScript][] and being
 inspired by the simplicity of the validation functions [the author][fogus]
 creates. Composing predicates is a very easy thing to do in Clojure and I wanted
-a library which takes advantage of that without any magic. The [valip][] library
-takes advantage of simple predicates but it is limited to validating maps.
-Although maps are probably the most common thing to validate only working on one
-type of value is limiting.
+a library which takes advantage of that [without any magic](#comparisons). The
+[valip][] library takes advantage of simple predicates but it is limited to
+validating maps.  Although maps are probably the most common thing to validate
+only working on one type of value is limiting.
 
-Additionally, for those who think validation libraries take themselves to
+Additionally, for those who think validation libraries take themselves too
 seriously, manners has two dialects: [victorian](#victorian) and
 [modern](#modern).
 
 ## Usage &amp; Dialect
 
-<a id="victorian"></a>
 ### Victorian
 
 First some terms vital to the victorian manner's lexicon.
@@ -90,7 +89,8 @@ more work that does not rely on the memoization. Pick your poison.
     (failure-func bad-stuff)))
 ```
 
-<a id="modern"></a>
+TODO: Finish describing the remainder of the API
+
 ### Modern
 
 There is nothing new with the modern dialect. It is composed of aliases to the
@@ -109,7 +109,6 @@ Dickens.
 
 The only thing modern is missing is the `defmannerisms` function defining macro.
 
-<a id="with"></a>
 ### With
 
 To avoid having to consistently pass in etiquette as a first argument you can
@@ -125,6 +124,9 @@ use the `with-etiquette` macro. It works with both dialects.
   (bad-manners 20)) ; => ()
 ```
 
+## Comparisons
+
+TODO: Write up about comparisons.
 
 ## Test
 
