@@ -34,7 +34,9 @@
   [etiquette value]
   (empty? (bad-manners etiquette value)))
 
-(def rude? (complement proper?))
+(def rude?
+  "The complement of manners.victorian/proper?"
+  (complement proper?))
 
 (defn falter
   "Throw an AssertionError when there are bad manners."
