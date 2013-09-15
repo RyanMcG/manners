@@ -50,7 +50,7 @@
   ([prefix etiquette value] (falter prefix (bad-manners etiquette value)))
   ([etiquette value] (avow! nil etiquette value)))
 
-(defmacro defmanners
+(defmacro defmannerisms
   [obj-sym & etiquette]
   (let [bad-manners-sym (symbol (str "bad-" obj-sym "-manners"))
         proper?-sym (symbol (str "proper-" obj-sym \?))
