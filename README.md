@@ -18,6 +18,8 @@ seriously, manners has two dialects: [victorian](#victorian) and
 
 ## Usage &amp; Dialect
 
+Traditional [API documentation][doc] can be found [here][doc].
+
 ### Victorian
 
 First some terms vital to the victorian manner's lexicon.
@@ -139,7 +141,7 @@ lein spec -a
 ```
 
 You can even run the tests interactively by requiring the file they are in via
-the magic of [speclj's `run-specs` function][specljs-run-specs].
+the magic of [speclj's `run-specs` function][speclj-run-specs].
 
 ## License
 
@@ -149,6 +151,7 @@ Distributed under the Eclipse Public License, the same as Clojure.
 
 [Functional JavaScript]: http://www.amazon.com/Functional-JavaScript-Introducing-Programming-Underscore-js/dp/1449360726
 [speclj]: https://github.com/slagyr/speclj
-[specljs-run-specs]: https://github.com/slagyr/speclj/#run-specs
+[speclj-run-specs]: https://github.com/slagyr/speclj/#run-specs
 [fogus]: http://fogus.me/
 [valip]: https://github.com/weavejester/valip
+[doc]: ryanmcg.github.io/manners
