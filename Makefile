@@ -2,22 +2,22 @@ SEPARATOR=======================================================================
 ECHO=@/usr/bin/env echo -e
 DOCS_BRANCH=gh-pages
 
-# Generate documentation using marginalia
-marg:
+# Generate documentation
+doc:
 	$(ECHO) ${SEPARATOR}
-	$(ECHO) "Using marginalia to create documentation. . ."
+	$(ECHO) "Create documentation..."
 	$(ECHO) ${SEPARATOR}
-	@-mkdir -p docs/
-	lein marg -d docs/ -f index.html
+	@-mkdir -p doc/
+	lein doc
 
 # Copy generated docs into gh-pages branch
-prepare_docs: marg
+prepare_docs: doc
 	$(ECHO) ${SEPARATOR}
-	$(ECHO) "Preparing marginalia docs in gh-pages branch. . ."
+	$(ECHO) "Preparing docs in gh-pages branch. . ."
 	$(ECHO) ${SEPARATOR}
 	@-mkdir -p .git/_deploy/
 	rm -rf .git/_deploy/*
-	cp docs/* .git/_deploy/
+	cp doc/* .git/_deploy/
 	git checkout gh-pages
 	cp .git/_deploy/* .
 	-git commit -am "Update documentation."
@@ -39,7 +39,7 @@ init_docs:
 	$(ECHO) ${SEPARATOR}
 	git checkout --orphan ${DOCS_BRANCH}
 	g rm -rf .
-	rm -rf docs target Makefile
+	rm -rf doc target Makefile
 	touch index.html
 	git add index.html
 	$(ECHO)
