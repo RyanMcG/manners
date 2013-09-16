@@ -261,7 +261,7 @@ the magic of [speclj's `run-specs` function][speclj-run-specs].
 
 ## License
 
-Copyright © 2012 Ryan McGowan
+Copyright © 2013 Ryan McGowan
 
 Distributed under the Eclipse Public License, the same as Clojure.
 
