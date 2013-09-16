@@ -7,10 +7,7 @@ A validation library built on using predicates properly.
 This library is the result of reading [Functional JavaScript][] and being
 inspired by the simplicity of the validation functions [the author][fogus]
 creates. Composing predicates is a very easy thing to do in Clojure and I wanted
-a library which takes advantage of that [without any magic](#comparisons). The
-[valip][] library takes advantage of simple predicates but it is limited to
-validating maps.  Although maps are probably the most common thing to validate
-only working on one type of value is limiting.
+a library which takes advantage of that [without too much magic](#comparisons).
 
 Additionally, for those who think validation libraries take themselves too
 seriously, *manners* has two dialects: [victorian](#victorian) and
@@ -166,7 +163,15 @@ use the `with-etiquette` macro. It works with both dialects.
 
 Clojure already has quite a few good validation libraries. This library is not
 greatly different and has no groundbreaking features. However, it does differ a
-couple of key ways. The following are some descriptions of other validation
+couple of key ways.
+
+*manners*
+* is small and simple. The core of the library (excluding documentation) is only
+  31 sloc.
+* uses memoization for improved performance.
+* works on arbitrary values, not just maps.
+
+The following are some descriptions of other validation
 libraries in the wild. They are listed in alphabetical.
 
 * [*bouncer*](https://github.com/leonardoborges/bouncer) is a neat DSL for
@@ -206,18 +211,17 @@ libraries in the wild. They are listed in alphabetical.
   higher-order predicate generating functions][valip.predicates] which are
   compatible with *manners* (since they are just predicates).
 
-Clearly validating maps is a common problem in Clojure. I think this is due to
-the web application use case of validating parameters as well as the use of
-custom maps without a strongly defined (i.e. typed) schema. Personally I find
-Clojure's default data types empowering and it seems like others do as well,
-enough to prefer validating maps using libraries in some cases. The case for
-validating arbitrary values exists though and the fact that none of the above
-offers validation on non-maps would be bizarre if they were not all designed to
-worked with a keyed type of data structure. Having been primarily doing Rails
-development for my so far short professional career I've become accustomed to
-keyed errors but I have rarely found much value in them. When I want to flash a
-message to a user I do want a well worded message and
-`Model#errors.full_messages` has never been it.
+Clearly validating maps is a common problem in Clojure. A common use case is the
+web application which needs to validate its parameters. Another is custom maps
+without a strongly defined (i.e. typed) schema.
+
+The case for validating arbitrary values exists and the fact that none of the
+above offers validation on non-maps would be bizarre if they were not all
+designed to worked with a keyed type of data structure. Having been primarily
+doing Rails development for my, so far, short professional career I've become
+accustomed to keyed errors but I have rarely found much value in them. When I
+want to flash a message to a user I desire a well worded message for the given
+context and `Model#errors.full_messages` has never been it.
 
 In an effort to be more generic this library differs from those above by not
 caring on what field an error occurred. There is no concept of a value needing
