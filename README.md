@@ -2,6 +2,11 @@
 
 A validation library built on using predicates properly.
 
+```clojure
+;; Add the following to dependencies in your project.clj
+[manners "0.1.0"]
+```
+
 ## Thoughts
 
 This library is the result of reading [Functional JavaScript][] and being
