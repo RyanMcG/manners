@@ -26,8 +26,8 @@ Traditional [API documentation][doc] can be found [here][doc].
 
 First some terms vital to the victorian manner's lexicon.
 
-* etiquette -- A sequence of manners
-* manner -- A predicate and a message as the first and second arguments of a
+* etiquette - A sequence of manners
+* manner - A predicate and a message as the first and second arguments of a
   sequential collection.
 
   ```clojure
