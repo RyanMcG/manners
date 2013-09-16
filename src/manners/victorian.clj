@@ -39,7 +39,7 @@
   (empty? (bad-manners etiquette value)))
 
 (def rude?
-  "The complement of manners.victorian/proper?"
+  "The complement of manners.victorian/proper?."
   (complement proper?))
 
 (defn falter
