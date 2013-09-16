@@ -28,7 +28,7 @@ First some terms vital to the victorian manner's lexicon.
 
 * etiquette - A sequence of manners
 * manner - A predicate and a message as the first and second arguments of a
-  sequential collection.
+  sequential collection
 
   ```clojure
   [empty? "Must be empty."]
@@ -212,17 +212,17 @@ libraries in the wild. They are listed alphabetically.
   the validation libraries to *manners* in that it is based on the simple
   application of predicates. However, its use does not differ greatly from
   *validateur* or *mississippi*. It also provides [a helpful suite of predicates
-  and higher-order predicate generating functions][valip.predicates] which are
+  and higher-order, predicate generating functions][valip.predicates] which are
   compatible with *manners* (since they are just predicates).
 
 Clearly validating maps is a common problem in Clojure. A common use case is the
 web application which needs to validate its parameters. Another is custom maps
 without a strongly defined (i.e. typed) schema.
 
-Although it may be less common I find there is a are cases where validating
-arbitrary values is very useful. None of the above work with non-maps nor could
-they be easily modified to do so because they are, by design meant for keyed
-data structures.
+Although it may be less common I find there are cases where validating arbitrary
+values is very useful. None of the above work with non-maps nor could they be
+easily modified to do so because they are, by design meant for keyed data
+structures.
 
 Having been primarily doing Rails development for my, so far, short professional
 career I've become accustomed to keyed errors but I have rarely found much value
@@ -238,7 +238,7 @@ validating related fields is easier. Consider the following etiquette and data.
 ```clojure
 (def data {:count 3 :words ["big" "bad" "wolf"]})
 (defn count-words-equal? [{cnt :count words :words}]
-  ((= cnt (count words))
+  (= cnt (count words)))
 (def etiquette
   [[(comp number? :count) "count must be a number"]
    [count-words-equal? "count must equal the length of the words sequence"]])
@@ -247,9 +247,10 @@ validating related fields is easier. Consider the following etiquette and data.
 This etiquette works fine with *manners*. Other libraries make validating
 relationships between fields much more difficult by limiting a predicate's
 application to the value of the field it is keyed to. The benefit of doing it
-that way is you can concisely define per field validations. The alternative of
-having to drill down to the field you mean to apply your predicate may seem like
-more work but using compose it is still quite concise (see above example).
+that way is you can concisely define per field validations. The alternative,
+having to drill down to the field you mean to apply your predicate to, may seem
+like more work but it is still quite concise when using `comp` (see above
+example).
 
 ## Test
 
