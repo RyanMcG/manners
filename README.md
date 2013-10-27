@@ -1,4 +1,4 @@
-# manners
+# manners [![Build Status](https://travis-ci.org/RyanMcG/manners.png)](https://travis-ci.org/RyanMcG/manners)
 
 A validation library built on using predicates properly.
 
