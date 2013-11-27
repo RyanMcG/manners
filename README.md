@@ -27,16 +27,19 @@ Traditional [API documentation][doc] can be found [here][doc].
 First some terms vital to the victorian manner's lexicon.
 
 * etiquette - A sequence of manners
-* manner - A predicate and a message as the first and second arguments of a
-  sequential collection
+* manner - One or more predicate, message pairs in a sequential collection
 
   ```clojure
-  [empty? "Must be empty."]
+  ;; just one pair
+  [empty? "must be empty"]
+  ;; more than one pair
+  [number? "must be a number"
+   odd? "must be odd"]
   ```
 
 * `coach` - A higher order function which takes an etiquette and returns a
   function that applies the predicates from the etiquette to its argument
-  returning a sequence of messages for the predicates that fail. The returned
+  returning a sequence of messages for the manners that fail. The returned
   function is called an etiquette coach (see what I did there?).
 
 All of the remaining functions are just helpers. Consider `bad-manners` which
@@ -46,13 +49,15 @@ works like so:
 
 ```clojure
 (use 'manners.victorian)
-(def etiquette [[even? "must be even"]
+(def etiquette [[even? "must be even"
+                 #(zero? (mod % 6)) "must be divisible by 6"]
                 [#(>= % 19) "must be greater than or equal to 19"]])
 (bad-manners etiquette 11)
 ; => ("must be even" "must be greater than or equal to 19")
 (bad-manners etiquette 10) ; => ("must be greater than or equal to 19")
 (bad-manners etiquette 19) ; => ("must be even")
-(bad-manners etiquette 20) ; => ()
+(bad-manners etiquette 20) ; => ("must be divisible by 6")
+(bad-manners etiquette 24) ; => ()
 ```
 
 `bad-manners` is simply defined as:
@@ -73,9 +78,9 @@ Next are `proper?` and `rude?`.  They are complements of each other.
 ```clojure
 ;; continuing with the etiquette defined above.
 (proper? etiquette 19) ; => false
-(proper? etiquette 20) ; => true
+(proper? etiquette 24) ; => true
 (rude? etiquette 19)   ; => true
-(rude? etiquette 20)   ; => false
+(rude? etiquette 24)   ; => false
 ```
 
 `proper?` is defined by calling `empty?` on the result of `bad-manners`. With
@@ -117,16 +122,19 @@ The last part of the API is `defmannerisms`. This is a helper macro for defining
 functions that wrap the core API and a given etiquette.
 
 ```clojure
-(defmannerisms empty-thing
-  [identity "must be truthy"]
+(defmannerisms empty-coll
+  [identity "must be truthy"
+   coll? "must be a collection"]
   [empty? "must be empty"])
 
-(proper-empty-thing? []) ; => true
-(rude-empty-thing? []) ; => false
-(bad-empty-thing-manners nil) ; => ("must be truthy")
-(avow-empty-thing! 1)
+(proper-empty-coll? []) ; => true
+(rude-empty-coll? []) ; => false
+(bad-empty-coll-manners nil) ; => ("must be truthy")
+(bad-empty-coll-manners "") ; => ("must be a collection")
+(bad-empty-coll-manners "a") ; => ("must be a collection" "must be empty")
+(avow-empty-coll! 1)
 ; throws and AssertionError with the message:
-;   Invalid empty-thing: must be truthy
+;   Invalid empty-coll: must be truthy
 
 ;; And so on.
 ```
@@ -156,12 +164,14 @@ use the `with-etiquette` macro. It works with both dialects.
 
 ```clojure
 (use 'manners.with)
-(with-etiquette [[even? "must be even"]
+(with-etiquette [[even? "must be even"
+                  #(zero? (mod % 6)) "must be divisible by 6"]
                 [#(>= % 19) "must be greater than or equal to 19"]]
   (proper? 10) ; => false
   (invalid? 11) ; => true
   (errors 19) ; => ("must be even")
-  (bad-manners 20)) ; => ()
+  (bad-manners 20) ; => ("must be divisible by 6")
+  (bad-manners 24)) ; => ()
 ```
 
 ## Comparisons
@@ -171,8 +181,7 @@ greatly different and has no groundbreaking features. However, it does differ a
 couple of key ways.
 
 *manners*
-* is small and simple. The core of the library (excluding documentation) is only
-  31 sloc.
+* is small and simple.
 * uses memoization for improved performance.
 * works on arbitrary values, not just maps.
 
@@ -214,6 +223,20 @@ libraries in the wild. They are listed alphabetically.
   *validateur* or *mississippi*. It also provides [a helpful suite of predicates
   and higher-order, predicate generating functions][valip.predicates] which are
   compatible with *manners* (since they are just predicates).
+* [*vlad*](https://github.com/logaan/vlad) is another general purpose validation
+  library.
+
+  > Vlad is an attempt at providing convenient and simple validations. Vlad is
+  > purely functional and makes no assumptions about your data. It can be used
+  > for validating html form data just as well as it can be used to validate
+  > your csv about cats.
+
+  I think its greatest strength is [its composition
+  abilities](https://github.com/logaan/vlad#composition). Etiquettes in
+  *manners* are just vectors so they can easily be constructed together. Vlad's
+  `chain` method stops checking after the first failed validator. I have since
+  added a feature to *manners* to provide similar support (multiple predicate
+  message pairs in a single manner).
 
 Clearly validating maps is a common problem in Clojure. A common use case is the
 web application which needs to validate its parameters. Another is custom maps

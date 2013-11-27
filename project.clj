@@ -1,4 +1,4 @@
-(defproject manners "0.2.0-SNAPSHOT"
+(defproject manners "0.2.0"
   :description "A validation library built on using predicates properly."
   :url "https://github.com/RyanMcG/manners"
   :license {:name "Eclipse Public License"
