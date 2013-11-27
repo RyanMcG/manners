@@ -4,7 +4,7 @@
 
 (describe "manners"
   (with nil-coach (coach [[odd? "it should be odd"]
-                           [number? "it should be a number"]]))
+                          [number? "it should be a number"]]))
   (it "always returns a sequence"
     (should (sequential? (@nil-coach nil)))
     (should (sequential? (@nil-coach 3737))))
@@ -12,7 +12,16 @@
     (should (empty? (@nil-coach 3))))
   (it "a sequence of error messages if it does not pass."
     (should= (list "it should be odd") (@nil-coach 2))
-    (should-contain "it should be a number" (@nil-coach nil))))
+    (should-contain "it should be a number" (@nil-coach nil)))
+  (context "joined manners"
+    (with nine-or-three-coach (coach [[number? "it should be a number"
+                                       odd? "it should be odd"
+                                       (some-fn #(= 9 %) #(= 3 %)) "it should be 9 or 3"]]))
+    (it "short circuits at the first matches predicate"
+      (should= (list "it should be a number") (@nine-or-three-coach "hey"))
+      (should= (list "it should be odd") (@nine-or-three-coach 2))
+      (should= (list "it should be 9 or 3") (@nine-or-three-coach 5))
+      (should= (list) (@nine-or-three-coach 3)))))
 
 (describe "bad-manners"
   (with validations [[odd? "it should be odd"]

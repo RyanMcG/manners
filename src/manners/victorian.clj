@@ -10,15 +10,26 @@
   (fn [& more]
     (try (apply func more) (catch Exception _))))
 
+(defn- create-predicate-applicator [value]
+  (fn [[predicate message]]
+    (when-not ((wrap-try predicate) value)
+      message)))
+
+(defn- first-message [predicate-applicator manner]
+  {:pre [(sequential? manner)]}
+  (first
+    (keep predicate-applicator (partition-all 2 manner))))
+
 (defn- unmemoized-coach
   "Return a memoized function which takes a value to run the given etiquette
   on."
   [etiquette]
   {:pre [(sequential? etiquette)]}
   (memoize (fn [value]
-             (for [[predicate & message] etiquette
-                   :when ((-> predicate wrap-try complement) value)]
-               (apply str message)))))
+             (->> etiquette
+                  (map (partial first-message
+                                (create-predicate-applicator value)))
+                  (keep identity)))))
 
 ;; The actual definition of coach is memoized so that when the same etiquette is
 ;; passed in we do not generate a new memoized function.
