@@ -31,6 +31,8 @@ deploy_docs:
 	$(ECHO) ${SEPARATOR}
 	git push -u origin ${DOCS_BRANCH}:${DOCS_BRANCH}
 
+prepare_and_deploy: prepare_docs deploy_docs
+
 # Should only be run once to make the gh-pages branch.
 init_docs:
 	$(ECHO)
