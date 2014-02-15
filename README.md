@@ -29,13 +29,13 @@ First some terms vital to the victorian manner's lexicon.
 * etiquette - A sequence of manners
 * manner - One or more predicate, message pairs in a sequential collection
 
-  ```clojure
-  ;; just one pair
-  [empty? "must be empty"]
-  ;; more than one pair
-  [number? "must be a number"
-   odd? "must be odd"]
-  ```
+```clojure
+;; just one pair
+[empty? "must be empty"]
+;; more than one pair
+[number? "must be a number"
+ odd? "must be odd"]
+```
 
 * `coach` - A higher order function which takes an etiquette and returns a
   function that applies the predicates from the etiquette to its argument
