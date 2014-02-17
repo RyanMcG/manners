@@ -27,7 +27,7 @@ Traditional [API documentation][doc] can be found [here][doc].
 First some terms vital to the victorian manner's lexicon.
 
 * etiquette - A sequence of manners
-* manner - One or more predicate, message pairs in a sequential collection
+* manner - One or more coaches or predicate message pairs
 
 ```clojure
 ;; just one pair
@@ -35,15 +35,22 @@ First some terms vital to the victorian manner's lexicon.
 ;; more than one pair
 [number? "must be a number"
  odd? "must be odd"]
+;; With a coach in there
+(def always-empty-coach (coach []))
+(def odd-coach (coach [[odd? "must be odd"]]))
+[always-empty-coach
+ ;; And some pairs
+ number? "must be a number"
+ odd-coach]
 ```
 
-* `coach` - A higher order function which takes an etiquette and returns a
-  function that applies the predicates from the etiquette to its argument
-  returning a sequence of messages for the manners that fail. The returned
-  function is called an etiquette coach (see what I did there?).
+* coach - A function that takes a value and returns a sequence (preferably lazy) of messages.
+  A message could be anything but is most often a string describing what makes the given value invalid.
+  A coach can be created from an etiquette with the `coach` function.
+  Coach functions (not vars) must have the meta `^:coach`.
 
-All of the remaining functions are just helpers. Consider `bad-manners` which
-works like so:
+The `coach` function is where the magic is at.
+All of the remaining functions are just helpers.
 
 #### `bad-manners` &amp; `coach`
 
@@ -137,6 +144,49 @@ functions that wrap the core API and a given etiquette.
 ;   Invalid empty-coll: must be truthy
 
 ;; And so on.
+```
+
+### Composability
+
+With version 0.3.0, etiquettes can now contain coaches.
+
+The abstraction made to accomplish this was to make a matter a sequence of
+coaches by converting predicate message pairs into coaches.
+You probably do not care about that though so just look at the example below.
+
+```clojure
+(def my-map-coach (coach [[:a "must have key a"
+                           (comp number? :a) "value at a must be a number"]
+                          [:b "must have key b"]]))
+;; Just for reference
+(my-map-coach {}) ; => ("must have key a" "must have key b")
+(my-map-coach {:a 1}) ; => ("must have key b")
+(my-map-coach {:a true}) ; => ("value at a must be a number" "must have key b")
+(my-map-coach {:b 1}) ; => ("must have key a")
+
+;; We can copy a coach by making it the only coach in a one manner etiquette.
+(def same-map-coach (coach [[my-map-coach]]))
+(same-map-coach {}) ; => ("must have key a" "must have key b")
+(same-map-coach {:a 1}) ; => ("must have key b")
+(same-map-coach {:a true}) ; => ("value at a must be a number" "must have key b")
+(same-map-coach {:b 1}) ; => ("must have key a")
+
+;; We can also add on to a coach.
+(def improved-map-coach
+ (coach [[my-map-coach (comp vector? :b) "value at b must be a vector"]
+         ;; If the entirety of my-map-coach passes our additional check on b's
+         ;; value will take place
+
+         ;; We can also add more parallel checks
+         [:c "must have key c"
+          (comp string? :c) "value at c must be a string"]]))
+
+(improved-map-coach {}) ; => ("must have key a" "must have key b" "must have key c")
+(improved-map-coach {:a 1}) ; => ("must have key b" "must have key c")
+(improved-map-coach {:a true}) ; => ("value at a must be a number" "must have key b" "must have key c")
+(improved-map-coach {:a true :b 1}) ; => ("value at a must be a number" "must have key c")
+(improved-map-coach {:a 1 :b 1}) ; => ("value at b must be a vector" "must have key c")
+(improved-map-coach {:a 1 :b [] :c "yo"}) ; => ()
 ```
 
 ### Modern

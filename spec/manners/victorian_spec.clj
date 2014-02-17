@@ -26,6 +26,9 @@
 (describe "bad-manners"
   (with validations [[odd? "it should be odd"]
                      [number? "it should be a number"]])
+  (it "works with an empty etiquette"
+    (should= (list) (bad-manners [] nil))
+    (should= (list) (bad-manners [[]] false)))
   (it "finds bad-manners"
     (should= (list "it should be odd" "it should be a number")
              (bad-manners @validations nil))
@@ -51,5 +54,39 @@
                   (avow! 'odd-number @validations 2)))
   (it "does nothing when no bad manners are found"
     (should-not-throw (avow! @validations 3))))
+
+;; An etiquette is a sequence of manners.
+;; A manner is either a coach or a predicate message pair.
+(describe "composable coaches"
+  (with msg1 "should be a map")
+  (with msg2 "should contain the key :hey")
+  (with msg3 "should have an odd number of keys")
+  (with msg4 "should have key :barb")
+  (with msg5 "should length 3 pairs")
+  (with base-etiquette [[map? @msg1 :barb @msg4]
+                        [(comp odd? count) @msg3]])
+  (with base-coach (coach @base-etiquette))
+  (with etiquette [[@base-coach :hey @msg2]
+                   [(comp (partial = 3) count) @msg5]])
+  (it "recognizes a proper value"
+    (should (proper? @etiquette {:barb :cats
+                                 :hey 'yo
+                                 :anything-else 3})))
+  (it "gets all parellel messages from nested coach"
+    (should= (list @msg1 @msg3 @msg5)
+             (bad-manners @etiquette [1 2])))
+  (it "can get to extended messages if base coach passes"
+    (should= (list @msg2 @msg5)
+             (bad-manners @etiquette {:barb :yo})))
+
+  (with msg6 "should have key :boom")
+  (with other-etiquette [[:boom @msg6 @base-coach]])
+  (it "ignores base coach messages unless previous coach in manner passes"
+    (should= (list @msg6)
+             (bad-manners @other-etiquette {:bam 1}))
+    (should= (list @msg4)
+             (bad-manners @other-etiquette {:boom 2}))
+    (should= (list @msg4 @msg3)
+             (bad-manners @other-etiquette {:boom 2 :bam 4}))))
 
 (run-specs)

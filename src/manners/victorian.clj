@@ -1,41 +1,72 @@
 (ns manners.victorian
   (:require [clojure.string :as s]))
 
-;; Predicates are wrapped with this function so that if a predicate causes an
-;; exception to be thrown it does not break the error checking.
 (defn- wrap-try
   "Create a function which has the same behaviour as func but catches all
   exceptions returning nil if one is received."
   [func]
   (fn [& more]
-    (try (apply func more) (catch Exception _))))
+    (try (apply func more) (catch RuntimeException _))))
 
-(defn- create-predicate-applicator [value]
-  (fn [[predicate message]]
-    (when-not ((wrap-try predicate) value)
-      message)))
+(defn falter
+  "Throw an AssertionError when there are bad manners."
+  ([prefix-sym bad-manners]
+   (let [full-prefix (when prefix-sym (str "Invalid " prefix-sym ": "))]
+     (when-not (empty? bad-manners)
+       (throw (AssertionError. (str full-prefix (s/join ", " bad-manners)))))))
+  ([bad-manners] (falter nil bad-manners)))
 
-(defn- first-message [predicate-applicator manner]
-  {:pre [(sequential? manner)]}
-  (first
-    (keep predicate-applicator (partition-all 2 manner))))
+(defn as-coach [coach-fn]
+  (with-meta
+    (memoize coach-fn)
+    {:coach true}))
+
+(defn- pred-msg->coach [predicate message]
+  (if message
+    (as-coach (fn [value] (when-not ((wrap-try predicate) value)
+                            (list message))))
+    (falter 'message ["it must not be nil"])))
+
+(def coach? (comp true? :coach meta))
+
+(defn- manner->coaches
+  "Return a lazy sequence of coaches from the given manner."
+  [manner]
+  (let [step (fn [a-manner]
+               (when-let [m (seq a-manner)]
+                 (let [[coach-or-pred msg] (take 2 m)
+                       [coach more]
+                       (if (coach? coach-or-pred)
+                         [coach-or-pred (next m)]
+                         [(pred-msg->coach coach-or-pred msg) (nnext m)])]
+                   (cons coach (manner->coaches more)))))]
+    (lazy-seq (step manner))))
+
+(defn- invoke-coaches-on-value [value coaches]
+  "Invokes each of the given coaches on the given value. The first non-empty
+  sequence is returned."
+  (->> coaches
+       (map (fn [func] (func value)))
+       (keep seq)
+       (first)))
 
 (defn- unmemoized-coach
   "Return a memoized function which takes a value to run the given etiquette
   on."
   [etiquette]
   {:pre [(sequential? etiquette)]}
-  (memoize (fn [value]
-             (->> etiquette
-                  (map (partial first-message
-                                (create-predicate-applicator value)))
-                  (keep identity)))))
+  (as-coach (fn [value]
+              (->> etiquette
+                   (map manner->coaches)
+                   (mapcat (partial invoke-coaches-on-value value))
+                   (keep identity)
+                   (distinct)))))
 
 ;; The actual definition of coach is memoized so that when the same etiquette is
 ;; passed in we do not generate a new memoized function.
 (def coach
-  "Create a function from a sequence of validators that returns a sequence of
-  bad manners."
+  "Create a function from a an etiquette which returns a lazy sequence of bad
+  manners."
   (memoize unmemoized-coach))
 
 (defn bad-manners
@@ -52,14 +83,6 @@
 (def rude?
   "The complement of manners.victorian/proper?."
   (complement proper?))
-
-(defn falter
-  "Throw an AssertionError when there are bad manners."
-  ([prefix-sym bad-manners]
-   (let [full-prefix (when prefix-sym (str "Invalid " prefix-sym ": "))]
-     (when-not (empty? bad-manners)
-       (throw (AssertionError. (str full-prefix (s/join ", " bad-manners)))))))
-  ([bad-manners] (falter nil bad-manners)))
 
 (defn avow!
   "Throw an AssertionError if there are any bad manners found on the given value with
