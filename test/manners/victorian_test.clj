@@ -1,4 +1,4 @@
-(ns manners.victorian-spec
+(ns manners.victorian-test
   (:require [manners.victorian :refer :all]
             [speclj.core :refer :all]))
 

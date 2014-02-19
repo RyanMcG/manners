@@ -1,4 +1,4 @@
-(ns manners.with-spec
+(ns manners.with-test
   (:require [speclj.core :refer :all]
             [manners.with :refer :all]))
 
