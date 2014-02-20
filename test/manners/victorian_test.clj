@@ -29,7 +29,12 @@
     (is (= (derp-keyword-coach "derp") (list keyword-msg)))
     (is (= (derp-keyword-coach "erp")
            (list keyword-msg d-msg)))
-    (is (= (derp-keyword-coach :erp) (list d-msg)))))
+    (is (= (derp-keyword-coach :erp) (list d-msg))))
+  (testing "idempotence"
+    (let [derp-keyword-coach2 (manner (manner (manner derp-keyword-coach)))]
+      (doseq [v [nil 1 'yp "erp" "derp" :derp]]
+        (is (= (derp-keyword-coach v)
+               (derp-keyword-coach2 v)))))))
 
 (def odd-msg "should be odd")
 (def num-msg "should be a number")
