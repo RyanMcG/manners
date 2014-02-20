@@ -16,18 +16,27 @@
        (throw (AssertionError. (str full-prefix (s/join ", " bad-manners)))))))
   ([bad-manners] (falter nil bad-manners)))
 
-(defn as-coach [coach-fn]
+(defn as-coach
+  "Memoize and mark the given function as a coach with the meta {:coach true}."
+  [coach-fn]
   (with-meta
     (memoize coach-fn)
     {:coach true}))
 
-(defn- pred-msg->coach [predicate message]
-  (if message
-    (as-coach (fn [value] (when-not ((wrap-try predicate) value)
-                            (list message))))
-    (falter 'message ["it must not be nil"])))
+(defn- pred-msg->coach
+  "Create a coach from a predicate and a message. Falter if message is nil."
+  [predicate message]
+  (if (nil? message)
+    (falter 'message ["must not be nil"])
+    (as-coach
+      (fn [value]
+        (sequence (when-not ((wrap-try predicate) value)
+                    (list message)))))))
 
-(def coach? (comp true? :coach meta))
+(def coach?
+  "A predicate which checks to see if the given value is a coach. It does this
+  by seeing if the meta :coach key is true."
+  (comp true? :coach meta))
 
 (defn- manner->coaches
   "Return a lazy sequence of coaches from the given manner."
@@ -42,37 +51,52 @@
                    (cons coach (manner->coaches more)))))]
     (lazy-seq (step manner))))
 
-(defn- invoke-coaches-on-value [value coaches]
-  "Invokes each of the given coaches on the given value. The first non-empty
-  sequence is returned."
-  (->> coaches
-       (map (fn [func] (func value)))
-       (keep seq)
-       (first)))
+(defn- invoke-on [value]
+  (fn [func] (func value)))
 
-(defn- unmemoized-coach
+(defn manner
+  "Creates a coach from a sequence of coaches and/or predicate message
+  pairs."
+  [& manner]
+  (as-coach
+    (fn [value]
+      (->> (manner->coaches manner)
+           (map (invoke-on value))
+           (keep seq)
+           (first)
+           (sequence)))))
+
+(defn- unmemoized-etiquette
   "Return a memoized function which takes a value to run the given etiquette
   on."
   [etiquette]
   {:pre [(sequential? etiquette)]}
   (as-coach (fn [value]
               (->> etiquette
-                   (map manner->coaches)
-                   (mapcat (partial invoke-coaches-on-value value))
+                   (map (fn [ms]
+                          (if (sequential? ms)
+                            (apply manner ms)
+                            (manner ms))))
+                   (mapcat (invoke-on value))
                    (keep identity)
                    (distinct)))))
 
 ;; The actual definition of coach is memoized so that when the same etiquette is
 ;; passed in we do not generate a new memoized function.
-(def coach
+(def etiquette
   "Create a function from a an etiquette which returns a lazy sequence of bad
   manners."
-  (memoize unmemoized-coach))
+  (memoize unmemoized-etiquette))
+
+(defn manners
+  "Creates a coach from one or more manners or coaches."
+  [& manners-and-coaches]
+  (etiquette manners-and-coaches))
 
 (defn bad-manners
   "Return all bad manners found with the given etiquette on the given value."
-  [etiquette value]
-  ((coach etiquette) value))
+  [etq value]
+  ((etiquette etq) value))
 
 (defn proper?
   "A predicate to determine if the given value has any bad manners according to the
@@ -84,25 +108,31 @@
   "The complement of manners.victorian/proper?."
   (complement proper?))
 
-(defn avow!
+(defn avow
   "Throw an AssertionError if there are any bad manners found on the given value with
   the given validations."
   ([prefix etiquette value] (falter prefix (bad-manners etiquette value)))
-  ([etiquette value] (avow! nil etiquette value)))
+  ([etiquette value] (avow nil etiquette value)))
 
 (defmacro defmannerisms
   "Define helper functions for validating using a consistent etiquette."
-  [obj-sym & etiquette]
+  [obj-sym etiquette]
   (let [bad-manners-sym (symbol (str "bad-" obj-sym "-manners"))
         proper?-sym (symbol (str "proper-" obj-sym \?))
         rude?-sym (symbol (str "rude-" obj-sym \?))
-        avow!-sym (symbol (str "avow-" obj-sym \!))]
+        avow-sym (symbol (str "avow-" obj-sym))
+        doc-string #(str "A partial of " %
+                         " with an etiquette for " obj-sym \.)]
     `(do
        (def ~bad-manners-sym
-         (partial bad-manners [~@etiquette]))
+         ~(doc-string 'bad-manners)
+         (partial bad-manners ~etiquette))
        (def ~proper?-sym
-         (partial proper? [~@etiquette]))
+         ~(doc-string 'proper?)
+         (partial proper? ~etiquette))
        (def ~rude?-sym
-         (partial rude? [~@etiquette]))
-       (defn ~avow!-sym [value#]
-         (avow! (quote ~obj-sym) [~@etiquette] value#)))))
+         ~(doc-string 'rude?)
+         (partial rude? ~etiquette))
+       (def ~avow-sym
+         ~(doc-string 'avow)
+         (partial avow (quote ~obj-sym) ~etiquette)))))
