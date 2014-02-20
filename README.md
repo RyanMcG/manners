@@ -4,7 +4,7 @@ A validation library built on using predicates properly.
 
 ```clojure
 ;; Add the following to dependencies in your project.clj
-[manners "0.4.0-SNAPSHOT"]
+[manners "0.4.0"]
 ```
 
 ## Thoughts
