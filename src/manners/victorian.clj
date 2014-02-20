@@ -116,17 +116,23 @@
 
 (defmacro defmannerisms
   "Define helper functions for validating using a consistent etiquette."
-  [obj-sym & etiquette]
+  [obj-sym etiquette]
   (let [bad-manners-sym (symbol (str "bad-" obj-sym "-manners"))
         proper?-sym (symbol (str "proper-" obj-sym \?))
         rude?-sym (symbol (str "rude-" obj-sym \?))
-        avow-sym (symbol (str "avow-" obj-sym))]
+        avow-sym (symbol (str "avow-" obj-sym))
+        doc-string #(str "A partial of " %
+                         " with an etiquette for " obj-sym \.)]
     `(do
        (def ~bad-manners-sym
-         (partial bad-manners [~@etiquette]))
+         ~(doc-string 'bad-manners)
+         (partial bad-manners ~etiquette))
        (def ~proper?-sym
-         (partial proper? [~@etiquette]))
+         ~(doc-string 'proper?)
+         (partial proper? ~etiquette))
        (def ~rude?-sym
-         (partial rude? [~@etiquette]))
-       (defn ~avow-sym [value#]
-         (avow (quote ~obj-sym) [~@etiquette] value#)))))
+         ~(doc-string 'rude?)
+         (partial rude? ~etiquette))
+       (def ~avow-sym
+         ~(doc-string 'avow)
+         (partial avow (quote ~obj-sym) ~etiquette)))))

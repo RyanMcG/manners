@@ -23,7 +23,7 @@
   (manner d-keyword-coach
           (comp (partial = "derp") name) "name is derp"))
 
-(deftest test-manner
+(deftest manner-test
   (testing "simple manner"
     (let [truthy-str-coach (manner identity "is truthy"
                                    string? "is a string")]
@@ -124,5 +124,21 @@
              (bad-manners other-etiquette {:boom 2})))
       (is (= (list msg4 msg3)
              (bad-manners other-etiquette {:boom 2 :bam 4}))))))
+
+(defmacro catch-message [& body]
+  `(try
+    ~@body
+     (catch AssertionError e#
+       (.getMessage e#))))
+
+(deftest defmannerisms-test
+  (defmannerisms odd-number odd-number-etq)
+  (doseq [v [nil 1 {} 2 "3"]]
+    (doseq [[pfunc func] [[proper-odd-number? proper?]
+                          [rude-odd-number? rude?]
+                          [bad-odd-number-manners bad-manners]]]
+      (is (= (pfunc v) (func odd-number-etq v))))
+    (is (= (catch-message (avow 'odd-number odd-number-etq v))
+           (catch-message (avow-odd-number v))))))
 
 #_(run-tests)
