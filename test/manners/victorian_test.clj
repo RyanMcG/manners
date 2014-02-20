@@ -12,7 +12,12 @@
   (is (= (d-keyword-coach :d) (list)))
   (is (= (d-keyword-coach :a) (list d-msg)))
   (is (= (d-keyword-coach "a") (list keyword-msg d-msg)))
-  (is (= (d-keyword-coach "d") (list keyword-msg))))
+  (is (= (d-keyword-coach "d") (list keyword-msg)))
+  (testing "idempotence"
+    (let [d-keyword-coach2 (manners (manners (manners d-keyword-coach)))]
+      (doseq [v [nil 1 'yp "erp" "derp" :derp]]
+        (is (= (d-keyword-coach v)
+               (d-keyword-coach2 v)))))))
 
 (def derp-keyword-coach
   (manner d-keyword-coach

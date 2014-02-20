@@ -73,7 +73,10 @@
   {:pre [(sequential? etiquette)]}
   (as-coach (fn [value]
               (->> etiquette
-                   (map (partial apply manner))
+                   (map (fn [ms]
+                          (if (sequential? ms)
+                            (apply manner ms)
+                            (manner ms))))
                    (mapcat (invoke-on value))
                    (keep identity)
                    (distinct)))))
@@ -86,9 +89,9 @@
   (memoize unmemoized-etiquette))
 
 (defn manners
-  "Creates a coach from one or more manners."
-  [& manners]
-  (etiquette manners))
+  "Creates a coach from one or more manners or coaches."
+  [& manners-and-coaches]
+  (etiquette manners-and-coaches))
 
 (defn bad-manners
   "Return all bad manners found with the given etiquette on the given value."
