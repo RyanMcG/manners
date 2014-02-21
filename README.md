@@ -167,11 +167,11 @@ more work that does not rely on the memoization. Pick your poison.
     (failure-func bad-stuff)))
 ```
 
-#### `avow!` &amp; `falter`
+#### `avow` &amp; `falter`
 
-Next on the list is `avow!` which takes the results of a call to `bad-manners`
+Next on the list is `avow` which takes the results of a call to `bad-manners`
 and throws an `AssertionError` when a non-empty sequence is returned.
-Internally `avow!` is conceptionally like the composition of `falter` (which
+Internally `avow` is conceptionally like the composition of `falter` (which
 does the throwing) and an etiquette coach.
 
 ```clojure
@@ -196,7 +196,7 @@ functions that wrap the core API and a given etiquette.
 (bad-empty-coll-manners nil) ; => ("must be truthy")
 (bad-empty-coll-manners "") ; => ("must be a collection")
 (bad-empty-coll-manners "a") ; => ("must be a collection" "must be empty")
-(avow-empty-coll! 1)
+(avow-empty-coll 1)
 ; throws and AssertionError with the message:
 ;   Invalid empty-coll: must be truthy
 
