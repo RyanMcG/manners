@@ -105,6 +105,8 @@ Instead of passing in an arbitrary number of arguments, etiquette is a [unary][]
                                          [#(>= % 19) "must be greater than or equal to 19"])
 ```
 
+And finally, `etiquette` is an idempotent function too.
+
 ### Helpers
 
 #### `bad-manners` &amp; `coach`
