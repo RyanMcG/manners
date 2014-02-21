@@ -69,17 +69,19 @@
 (defn- unmemoized-etiquette
   "Return a memoized function which takes a value to run the given etiquette
   on."
-  [etiquette]
-  {:pre [(sequential? etiquette)]}
-  (as-coach (fn [value]
-              (->> etiquette
-                   (map (fn [ms]
-                          (if (sequential? ms)
-                            (apply manner ms)
-                            (manner ms))))
-                   (mapcat (invoke-on value))
-                   (keep identity)
-                   (distinct)))))
+  [etq]
+  {:pre [((some-fn sequential? coach?) etq)]}
+  (if (coach? etq)
+    etq
+    (as-coach (fn [value]
+                (->> etq
+                     (map (fn [ms]
+                            (if (sequential? ms)
+                              (apply manner ms)
+                              (manner ms))))
+                     (mapcat (invoke-on value))
+                     (keep identity)
+                     (distinct))))))
 
 ;; The actual definition of coach is memoized so that when the same etiquette is
 ;; passed in we do not generate a new memoized function.

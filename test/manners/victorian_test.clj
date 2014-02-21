@@ -58,13 +58,19 @@
     (is (= (list odd-msg num-msg) (odd-number-coach nil))))
   (testing "joined manners"
     (let [nine-or-three-msg "it should be 9 or 3"
-          nine-or-three-coach (manner odd-number-coach
-                                      (some-fn #(= 9 %) #(= 3 %)) nine-or-three-msg)]
+          nine-or-three-coach
+          (manner odd-number-coach
+                  (some-fn #(= 9 %) #(= 3 %)) nine-or-three-msg)]
       (testing "short circuits at the first matches predicate"
         (is (= (list odd-msg num-msg) (nine-or-three-coach "hey")))
         (is (= (list odd-msg) (nine-or-three-coach 2)))
         (is (= (list nine-or-three-msg) (nine-or-three-coach 5)))
-        (is (= (list) (nine-or-three-coach 3)))))))
+        (is (= (list) (nine-or-three-coach 3)))))
+    (testing "idempotence"
+      (let [odd-number-coach2 (etiquette (etiquette odd-number-coach))]
+        (doseq [v [nil 1 2 100 78471 :derp]]
+          (is (= (odd-number-coach v)
+                 (odd-number-coach2 v))))))))
 
 (deftest test-bad-manners
   (testing "works with an empty etiquette"
