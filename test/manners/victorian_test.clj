@@ -23,7 +23,7 @@
   (manner d-keyword-coach
           (comp (partial = "derp") name) "name is derp"))
 
-(deftest manner-test
+(deftest test-manner
   (testing "simple manner"
     (let [truthy-str-coach (manner identity "is truthy"
                                    string? "is a string")]
@@ -47,7 +47,7 @@
                      [number? num-msg]])
 (def odd-number-coach (etiquette odd-number-etq))
 
-(deftest manners-test
+(deftest test-etiquette
   (testing "always returns a sequence"
     (is (sequential? (odd-number-coach nil)))
     (is (sequential? (odd-number-coach 3737))))
@@ -58,15 +58,21 @@
     (is (= (list odd-msg num-msg) (odd-number-coach nil))))
   (testing "joined manners"
     (let [nine-or-three-msg "it should be 9 or 3"
-          nine-or-three-coach (manner odd-number-coach
-                                      (some-fn #(= 9 %) #(= 3 %)) nine-or-three-msg)]
+          nine-or-three-coach
+          (manner odd-number-coach
+                  (some-fn #(= 9 %) #(= 3 %)) nine-or-three-msg)]
       (testing "short circuits at the first matches predicate"
         (is (= (list odd-msg num-msg) (nine-or-three-coach "hey")))
         (is (= (list odd-msg) (nine-or-three-coach 2)))
         (is (= (list nine-or-three-msg) (nine-or-three-coach 5)))
-        (is (= (list) (nine-or-three-coach 3)))))))
+        (is (= (list) (nine-or-three-coach 3)))))
+    (testing "idempotence"
+      (let [odd-number-coach2 (etiquette (etiquette odd-number-coach))]
+        (doseq [v [nil 1 2 100 78471 :derp]]
+          (is (= (odd-number-coach v)
+                 (odd-number-coach2 v))))))))
 
-(deftest bad-manners-test
+(deftest test-bad-manners
   (testing "works with an empty etiquette"
     (is (= (list) (bad-manners [] nil)))
     (is (= (list) (bad-manners [[]] false))))
@@ -76,14 +82,14 @@
     (is (= (list odd-msg) (bad-manners odd-number-etq 2)))
     (is (= (list) (bad-manners odd-number-etq 3)))))
 
-(deftest rude?-and-proper?-test
+(deftest test-rude?-and-proper?
   (testing "are complements"
     (is (rude? odd-number-etq 2))
     (is (not (proper? odd-number-etq 2)))
     (is (not (rude? odd-number-etq 1)))
     (is (proper? odd-number-etq 1))))
 
-(deftest avow-test
+(deftest test-avow
   (testing "throws an error when bad manners are found"
     (is (thrown? AssertionError #"it should be odd, it should be a number"
                  (avow odd-number-etq nil)))
@@ -94,7 +100,7 @@
 
 ;; An etiquette is a sequence of manners.
 ;; A manner is either a coach or a predicate message pair.
-(deftest composable-coaches-test
+(deftest test-composable-coaches
   (let [msg1 "should be a map"
         msg2 "should contain the key :hey"
         msg3 "should have an odd number of keys"
@@ -131,7 +137,7 @@
      (catch AssertionError e#
        (.getMessage e#))))
 
-(deftest defmannerisms-test
+(deftest test-defmannerisms
   (defmannerisms odd-number odd-number-etq)
   (doseq [v [nil 1 {} 2 "3"]]
     (doseq [[pfunc func] [[proper-odd-number? proper?]
