@@ -66,9 +66,9 @@
            (first)
            (sequence)))))
 
-(defn- unmemoized-etiquette
-  "Return a memoized function which takes a value to run the given etiquette
-  on."
+(defn etiquette
+  "Create a function from a an etiquette which returns a lazy sequence of bad
+  manners."
   [etq]
   {:pre [((some-fn sequential? coach?) etq)]}
   (if (coach? etq)
@@ -83,22 +83,20 @@
                      (keep identity)
                      (distinct))))))
 
-;; The actual definition of coach is memoized so that when the same etiquette is
-;; passed in we do not generate a new memoized function.
-(def etiquette
-  "Create a function from a an etiquette which returns a lazy sequence of bad
-  manners."
-  (memoize unmemoized-etiquette))
-
 (defn manners
   "Creates a coach from one or more manners or coaches."
   [& manners-and-coaches]
   (etiquette manners-and-coaches))
 
+(def memoized-etiquette
+  "A memoized version of etiquette. Note that the coach etiquette returns will
+  be memoized without using memoized-etiquette."
+  (memoize etiquette))
+
 (defn bad-manners
   "Return all bad manners found with the given etiquette on the given value."
   [etq value]
-  ((etiquette etq) value))
+  ((memoized-etiquette etq) value))
 
 (defn proper?
   "A predicate to determine if the given value has any bad manners according to the
