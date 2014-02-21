@@ -23,7 +23,7 @@
   (manner d-keyword-coach
           (comp (partial = "derp") name) "name is derp"))
 
-(deftest manner-test
+(deftest test-manner
   (testing "simple manner"
     (let [truthy-str-coach (manner identity "is truthy"
                                    string? "is a string")]
@@ -47,7 +47,7 @@
                      [number? num-msg]])
 (def odd-number-coach (etiquette odd-number-etq))
 
-(deftest manners-test
+(deftest test-etiquette
   (testing "always returns a sequence"
     (is (sequential? (odd-number-coach nil)))
     (is (sequential? (odd-number-coach 3737))))
@@ -66,7 +66,7 @@
         (is (= (list nine-or-three-msg) (nine-or-three-coach 5)))
         (is (= (list) (nine-or-three-coach 3)))))))
 
-(deftest bad-manners-test
+(deftest test-bad-manners
   (testing "works with an empty etiquette"
     (is (= (list) (bad-manners [] nil)))
     (is (= (list) (bad-manners [[]] false))))
@@ -76,14 +76,14 @@
     (is (= (list odd-msg) (bad-manners odd-number-etq 2)))
     (is (= (list) (bad-manners odd-number-etq 3)))))
 
-(deftest rude?-and-proper?-test
+(deftest test-rude?-and-proper?
   (testing "are complements"
     (is (rude? odd-number-etq 2))
     (is (not (proper? odd-number-etq 2)))
     (is (not (rude? odd-number-etq 1)))
     (is (proper? odd-number-etq 1))))
 
-(deftest avow-test
+(deftest test-avow
   (testing "throws an error when bad manners are found"
     (is (thrown? AssertionError #"it should be odd, it should be a number"
                  (avow odd-number-etq nil)))
@@ -94,7 +94,7 @@
 
 ;; An etiquette is a sequence of manners.
 ;; A manner is either a coach or a predicate message pair.
-(deftest composable-coaches-test
+(deftest test-composable-coaches
   (let [msg1 "should be a map"
         msg2 "should contain the key :hey"
         msg3 "should have an odd number of keys"
@@ -131,7 +131,7 @@
      (catch AssertionError e#
        (.getMessage e#))))
 
-(deftest defmannerisms-test
+(deftest test-defmannerisms
   (defmannerisms odd-number odd-number-etq)
   (doseq [v [nil 1 {} 2 "3"]]
     (doseq [[pfunc func] [[proper-odd-number? proper?]
