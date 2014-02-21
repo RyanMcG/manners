@@ -21,7 +21,7 @@ prepare_docs: doc
 	cp -R .git/_deploy/* .
 	git add .
 	-git commit -m "Update documentation."
-	@git checkout - > /dev/null && git stash pop -q
+	@git checkout --force - > /dev/null && git stash pop -q
 	$(ECHO)
 
 # Deploy prepared documents
