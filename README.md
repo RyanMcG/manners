@@ -27,6 +27,8 @@ First some terms vital to manner's lexicon.
   A message could be anything but is most often a string describing what makes the given value invalid.
   Coach functions (not vars) must have the meta `^:coach`.
 
+##### [API Documentation][api]
+
 ### Creating coaches
 
 #### `manner`
@@ -388,4 +390,4 @@ Distributed under the Eclipse Public License, the same as Clojure.
 [fogus]: http://fogus.me/
 [valip]: https://github.com/weavejester/valip
 [valip.predicates]: https://github.com/weavejester/valip/blob/master/src/valip/predicates.clj
-[doc]: http://www.ryanmcg.com/manners
+[api]: http://www.ryanmcg.com/manners
