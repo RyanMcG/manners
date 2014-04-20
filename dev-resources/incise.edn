@@ -1,0 +1,6 @@
+{:parse-defaults {:layout :vm}
+ :stefon {:asset-roots ["dev-resources/assets"]
+          :manifest-file "dev-resources/manifest.json"
+          :precompiles ["vm/javascripts/vm.js.stefon"
+                        "vm/stylesheets/vm.css.stefon"]}
+ :deploy {:workflow :git-branch}}

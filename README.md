@@ -390,4 +390,4 @@ Distributed under the Eclipse Public License, the same as Clojure.
 [fogus]: http://fogus.me/
 [valip]: https://github.com/weavejester/valip
 [valip.predicates]: https://github.com/weavejester/valip/blob/master/src/valip/predicates.clj
-[api]: http://www.ryanmcg.com/manners
+[api]: http://www.ryanmcg.com/manners/api/

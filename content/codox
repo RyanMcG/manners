@@ -1,4 +1,5 @@
 {:name "manners"
+ :output-dir "api"
  :src-uri "https://github.com/RyanMcG/manners"
  :src-dir-uri "https://github.com/RyanMcG/manners/blob/master/"
  :src-linenum-anchor-prefix "L"}
