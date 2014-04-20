@@ -3,3 +3,4 @@ pom.xml.asc
 /target
 /checkouts
 /public
+/dev-resources/manifest.json
