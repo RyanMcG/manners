@@ -290,12 +290,12 @@ libraries in the wild. They are listed alphabetically.
   special behaviour like message formatting. A common trend in other validation
   libraries, it returns a custom formated data structure:
 
-  > `validate` takes a map and one or more validation forms and returns a
-  > vector.
-  >
-  > The first element in this vector contains a map of the error messages,
-  > whereas the second element contains the original map, augmented with the
-  > error messages.
+    > `validate` takes a map and one or more validation forms and returns a
+    > vector.
+    >
+    > The first element in this vector contains a map of the error messages,
+    > whereas the second element contains the original map, augmented with the
+    > error messages.
 
 * [*metis*](https://github.com/mylesmegyesi/metis) is a keyword based DSL for
   validating maps by creating higher order functions. It returns a map reusing
@@ -319,13 +319,12 @@ libraries in the wild. They are listed alphabetically.
   *validateur* or *mississippi*. It also provides [a helpful suite of predicates
   and higher-order, predicate generating functions][valip.predicates] which are
   compatible with *manners* (since they are just predicates).
-* [*vlad*](https://github.com/logaan/vlad) is another general purpose validation
-  library.
+* [*vlad*](https://github.com/logaan/vlad) is another general purpose validation library.
 
-  > Vlad is an attempt at providing convenient and simple validations. Vlad is
-  > purely functional and makes no assumptions about your data. It can be used
-  > for validating html form data just as well as it can be used to validate
-  > your csv about cats.
+    > Vlad is an attempt at providing convenient and simple validations. Vlad is
+    > purely functional and makes no assumptions about your data. It can be used
+    > for validating html form data just as well as it can be used to validate
+    > your csv about cats.
 
   I think its greatest strength is [its composition
   abilities](https://github.com/logaan/vlad#composition). Etiquettes in
