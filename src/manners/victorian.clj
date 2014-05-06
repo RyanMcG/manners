@@ -18,9 +18,9 @@
 
 (defn as-coach
   "Memoize and mark the given function as a coach with the meta {:coach true}."
-  [coach-fn]
+  [& coaching-fns]
   (with-meta
-    (memoize coach-fn)
+    (memoize (apply comp coaching-fns))
     {:coach true}))
 
 (defn- pred-msg->coach
