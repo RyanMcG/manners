@@ -1,4 +1,6 @@
 (ns manners.with
+  "A namespace for defining the with-etiquette macro for scoped, etiquette
+  specific, manners."
   (:require manners.victorian))
 
 (defn- symbol->dynamic-partial [dynamic-var sym]

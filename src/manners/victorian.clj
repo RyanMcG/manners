@@ -1,4 +1,6 @@
 (ns manners.victorian
+  "The primary namespace containing all of the core functions for creating and
+  using coaches."
   (:require [clojure.string :as s]))
 
 (defn- wrap-try
