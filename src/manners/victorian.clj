@@ -23,7 +23,7 @@
   [& coaching-fns]
   (with-meta
     (memoize (apply comp coaching-fns))
-    {:coach true}))
+    {::coach true}))
 
 (defn- pred-msg->coach
   "Create a coach from a predicate and a message. Falter if message is nil."
@@ -38,7 +38,7 @@
 (def coach?
   "A predicate which checks to see if the given value is a coach. It does this
   by seeing if the meta :coach key is true."
-  (comp true? :coach meta))
+  (comp true? ::coach meta))
 
 (defn- manner->coaches
   "Return a lazy sequence of coaches from the given manner."
