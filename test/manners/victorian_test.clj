@@ -128,9 +128,9 @@
 
     (testing "recognizes a proper value"
       (is (proper? etq {:barb :cats
-                            :hey 'yo
-                            :anything-else 3})))
-    (testing "gets all parellel messages from nested coach"
+                        :hey 'yo
+                        :anything-else 3})))
+    (testing "gets all parallel messages from nested coach"
       (is (= (list msg1 msg3 msg5)
              (bad-manners etq [1 2]))))
     (testing "can get to extended messages if base coach passes"
@@ -146,7 +146,7 @@
 
 (defmacro catch-message [& body]
   `(try
-    ~@body
+     ~@body
      (catch AssertionError e#
        (.getMessage e#))))
 
