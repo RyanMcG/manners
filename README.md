@@ -7,6 +7,7 @@ A validation library built on using predicates properly.
 [manners "0.6.0"]
 ```
 
+###### [**Source**](https://github.com/RyanMcG/manners)
 ###### [**API Documentation**][api]
 
 ## Thoughts
