@@ -1,72 +1,73 @@
 <!DOCTYPE html>
-<html><head><title>manners - index</title><meta charset="UTF-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><link href="//yui.yahooapis.com/pure/0.5.0-rc-1/pure-min.css" rel="stylesheet" type="text/css"><link href="//yui.yahooapis.com/pure/0.5.0-rc-1/grids-responsive-min.css" rel="stylesheet" type="text/css"><link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet" type="text/css"><link href="/manners/assets/vm/stylesheets/vm-becf58ee980cbfad6013cf791b1ddc53.css" rel="stylesheet" type="text/css"><link href="/manners/assets/images/vm.png" rel="icon" type="image/png"></head><body id="page"><div id="content"><article><h1>manners <a href="https://travis-ci.org/RyanMcG/manners"><img src="https://travis-ci.org/RyanMcG/manners.png?branch=master" alt="Build Status""/></a></h1><p>A validation library built on using predicates properly.</p>
+<html><head><title>manners - index</title><meta charset="UTF-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><link href="//yui.yahooapis.com/pure/0.5.0-rc-1/pure-min.css" rel="stylesheet" type="text/css"><link href="//yui.yahooapis.com/pure/0.5.0-rc-1/grids-responsive-min.css" rel="stylesheet" type="text/css"><link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet" type="text/css"><link href="/manners/assets/vm/stylesheets/vm-becf58ee980cbfad6013cf791b1ddc53.css" rel="stylesheet" type="text/css"><link href="/manners/assets/images/vm.png" rel="icon" type="image/png"></head><body id="page"><div id="content"><article><h1>manners <a href="https://travis-ci.org/RyanMcG/manners"><img src="https://travis-ci.org/RyanMcG/manners.svg?branch=master" alt="Build Status""/></a></h1><p>A validation library built on using predicates properly.</p>
 <pre><code class="clojure">;; Add the following to dependencies in your project.clj
-[manners &quot;0.5.0&quot;]
-</code></pre><h2>Thoughts</h2><p>This library is the result of reading <a href="http://www.amazon.com/Functional-JavaScript-Introducing-Programming-Underscore-js/dp/1449360726">Functional JavaScript</a> and being inspired by the simplicity of the validation functions <a href="http://fogus.me/">the author</a> creates. Composing predicates is a very easy thing to do in Clojure and I wanted a library which takes advantage of that <a href="#comparisons">without too much magic</a>.</p><p>In older versions of manners there was a modern dialect as well as the default, victorian-style function names. This has been removed for greater consistency.</p><h2>Usage</h2><h3>Terminology</h3><p>First some terms vital to manner&rsquo;s lexicon.</p>
+[manners &quot;0.6.0&quot;]
+</code></pre><h6><a href="http://www.ryanmcg.com/manners/api/"><strong>API Documentation</strong></a></h6><h2>Thoughts</h2><p>Composing predicates is a very easy thing to do in Clojure and I wanted a library which takes advantage of that <a href="#comparisons">without too much magic</a>.</p><p><a id="usage"></a></p><h2>Usage</h2><p><a id="terminology"></a></p><h3>Terminology</h3><p>First some terms vital to manner&rsquo;s lexicon.</p>
 <ul>
   <li>etiquette - A sequence of manners</li>
   <li>manner - One or more coaches or predicate message pairs</li>
-  <li>coach - A function that takes a value and returns a sequence (preferably lazy) of messages.  A message could be anything but is most often a string describing what makes the given value invalid.  Coach functions (not vars) must have the meta <code>^:coach</code>.</li>
-</ul><h5><a href="http://www.ryanmcg.com/manners/api/">API Documentation</a></h5><h3>Creating coaches</h3><h4><code>manner</code></h4><p>There are several functions which create coaches. The most essential is <code>manner</code> which creates a coach from a manner like so:</p>
+  <li>coach - A function that takes a value and returns a sequence (preferably lazy) of messages.  Coach functions (not vars) must have the meta <code>^:coach</code>.  They may be created using <code>as-coach</code> which also does some memoization.</li>
+  <li>message - A message could be anything but is most often a string describing what makes the given value invalid.</li>
+</ul><h3>Creating coaches</h3><h4><code>manner</code></h4><p>There are several functions which create coaches. The most essential is <code>manner</code> which creates a coach from a manner (see <a href="#terminology">terminology</a> above) like so:</p>
 <pre><code class="clojure">(def div-by-six-coach (manner even? &quot;must be even&quot;
                               #(zero? (mod % 6)) &quot;must be divisible by 6&quot;))
-(div-by-six-coach 1) ; =&gt; (&quot;must be even&quot;)
-(div-by-six-coach 2) ; =&gt; (&quot;must be divisible by 6&quot;)
-(div-by-six-coach 12) ; =&gt; ()
+(div-by-six-coach 1)  ; → (&quot;must be even&quot;)
+(div-by-six-coach 2)  ; → (&quot;must be divisible by 6&quot;)
+(div-by-six-coach 12) ; → ()
 </code></pre><p><code>manner</code> is an idempotent function.</p>
 <pre><code class="clojure">(def div-by-six-coach2 (manner (manner (manner (manner div-by-six-coach)))))
 ;; The behaviour of div-by-six-coach and div-by-six-coach2 is the same
-(div-by-six-coach2 2) ; =&gt; (&quot;must be divisible by 6&quot;)
+(div-by-six-coach2 2) ; → (&quot;must be divisible by 6&quot;)
 </code></pre><h4><code>manners</code></h4><p><code>manners</code> creates a coach from a one or more manners or coaches. Instead of returning the first matching message it returns the results of every coach.</p>
 <pre><code class="clojure">(def div-by-six-and-gt-19-coach
   (manners div-by-six-coach
            [#(&gt;= % 19) &quot;must be greater than or equal to 19&quot;]))
 
 (div-by-six-and-gt-19-coach 1)
-; =&gt; (&quot;must be even&quot; &quot;must be greater than or equal to 19&quot;)
+; → (&quot;must be even&quot; &quot;must be greater than or equal to 19&quot;)
 (div-by-six-and-gt-19-coach 2)
-; =&gt; (&quot;must be divisible by 6&quot; &quot;must be greater than or equal to 19&quot;)
+; → (&quot;must be divisible by 6&quot; &quot;must be greater than or equal to 19&quot;)
 (div-by-six-and-gt-19-coach 12)
-; =&gt; (&quot;must be greater than or equal to 19&quot;)
-(div-by-six-and-gt-19-coach 24) ; =&gt; ()
+; → (&quot;must be greater than or equal to 19&quot;)
+(div-by-six-and-gt-19-coach 24) ; → ()
 </code></pre><p><code>manners</code> is also idempotent.</p>
 <pre><code class="clojure">(def div-by-six-coach2 (manners (manner (manners (manners div-by-six-coach)))))
 ;; The behaviour of div-by-six-coach and div-by-six-coach2 is the same
-(div-by-six-coach2 2) ; =&gt; (&quot;must be divisible by 6&quot;)
-</code></pre><p>In fact, manners and manner can be interchanged if the only argument is a single coach.</p><p>However, they will behave differently with multiple coaches.</p><h4><code>etiquette</code></h4><p>This function is almost identical to manners. Actually, manners is defined using etiquette.</p>
+(div-by-six-coach2 2) ; → (&quot;must be divisible by 6&quot;)
+</code></pre><h4><code>etiquette</code></h4><p>This function is almost identical to manners. Actually, manners is defined using etiquette.</p>
 <pre><code class="clojure">(defn manners [&amp; etq]
   (etiquette etq))
 </code></pre><p>Instead of passing in an arbitrary number of arguments, etiquette is a <a href="http://en.wikipedia.org/wiki/Arity">unary</a> function which takes all manners as a sequence.</p>
 <pre><code class="clojure">;; These are all the same...
-(def div-by-six-and-gt-19-coach (etiquette [[div-by-six-coach]
-                                            [#(&gt;= % 19) &quot;must be greater than or equal to 19&quot;]])
-(def div-by-six-and-gt-19-coach (etiquette [div-by-six-coach
-                                            [#(&gt;= % 19) &quot;must be greater than or equal to 19&quot;]])
-(def div-by-six-and-gt-19-coach (manners [div-by-six-coach]
-                                         [#(&gt;= % 19) &quot;must be greater than or equal to 19&quot;])
-(def div-by-six-and-gt-19-coach (manners div-by-six-coach
-                                         [#(&gt;= % 19) &quot;must be greater than or equal to 19&quot;])
-</code></pre><p>And finally, <code>etiquette</code> is an idempotent function too.</p><h3>Helpers</h3><h4><code>bad-manners</code> &amp; <code>coach</code></h4>
+(etiquette [[div-by-six-coach]
+            [#(&gt;= % 19) &quot;must be greater than or equal to 19&quot;]])
+(etiquette [div-by-six-coach
+            [#(&gt;= % 19) &quot;must be greater than or equal to 19&quot;]])
+(manners [div-by-six-coach]
+         [#(&gt;= % 19) &quot;must be greater than or equal to 19&quot;])
+(manners div-by-six-coach
+         [#(&gt;= % 19) &quot;must be greater than or equal to 19&quot;])
+</code></pre><p>And finally, <code>etiquette</code> is an idempotent function too.</p><p><a id="helpers"></a></p><h3>Helpers</h3><h4><code>bad-manners</code> &amp; <code>coach</code></h4>
 <pre><code class="clojure">(use &#39;manners.victorian)
 (def etq [[even? &quot;must be even&quot;
            #(zero? (mod % 6)) &quot;must be divisible by 6&quot;]
           [#(&gt;= % 19) &quot;must be greater than or equal to 19&quot;]])
 (bad-manners etq 11)
-; =&gt; (&quot;must be even&quot; &quot;must be greater than or equal to 19&quot;)
-(bad-manners etq 10) ; =&gt; (&quot;must be greater than or equal to 19&quot;)
-(bad-manners etq 19) ; =&gt; (&quot;must be even&quot;)
-(bad-manners etq 20) ; =&gt; (&quot;must be divisible by 6&quot;)
-(bad-manners etq 24) ; =&gt; ()
+; → (&quot;must be even&quot; &quot;must be greater than or equal to 19&quot;)
+(bad-manners etq 10) ; → (&quot;must be greater than or equal to 19&quot;)
+(bad-manners etq 19) ; → (&quot;must be even&quot;)
+(bad-manners etq 20) ; → (&quot;must be divisible by 6&quot;)
+(bad-manners etq 24) ; → ()
 </code></pre><p><code>bad-manners</code> is simply defined as: <code>clojure
 (defn bad-manners
   [etq value]
   ((etiquette etq) value))
 </code></p><p>Memoization is used so that subsequent calls to <code>coach</code> and the function generated by <code>coach</code> does not repeat any work. That also means predicates used in an etiquette should be referentially transparent.</p><h4><code>proper?</code> &amp; <code>rude?</code></h4><p>Next are <code>proper?</code> and <code>rude?</code>. They are complements of each other.</p>
 <pre><code class="clojure">;; continuing with the etiquette defined above.
-(proper? etq 19) ; =&gt; false
-(proper? etq 24) ; =&gt; true
-(rude? etq 19)   ; =&gt; true
-(rude? etq 24)   ; =&gt; false
+(proper? etq 19) ; → false
+(proper? etq 24) ; → true
+(rude? etq 19)   ; → true
+(rude? etq 24)   ; → false
 </code></pre><p><code>proper?</code> is defined by calling <code>empty?</code> on the result of <code>bad-manners</code>. With the memoization you can call <code>proper?</code> then check <code>bad-manners</code> without doubling the work.</p>
 <pre><code class="clojure">(if (proper? etq some-value)
   (success-func)
@@ -76,35 +77,40 @@
   (if (empty? bad-stuff)
     (success-func)
     (failure-func bad-stuff)))
-</code></pre><h4><code>avow</code> &amp; <code>falter</code></h4><p>Next on the list is <code>avow</code> which takes the results of a call to <code>bad-manners</code> and throws an <code>AssertionError</code> when a non-empty sequence is returned. Internally <code>avow</code> is conceptionally like the composition of <code>falter</code> (which does the throwing) and an etiquette coach.</p>
+</code></pre><h4><code>avow</code> &amp; <code>falter</code></h4><p>Next on the list is <code>avow</code> which takes the results of a call to <code>bad-manners</code> and throws an <code>AssertionError</code> when a non-empty sequence is returned. <code>avow</code> is conceptionally like the composition of <code>falter</code> (which does the throwing) and a coach.</p>
 <pre><code class="clojure">;; assume `etq` is a valid etiquette and `value` is the value have
 ;; predicates applied to.
 ((comp falter (etiquette etq)) value)
+</code></pre><p>An example:</p>
+<pre><code class="clojure">(avow [[identity &quot;must be truthy&quot;]] nil)
+; throws an AssertionError with the message:
+;   Invalid: must be truthy
 </code></pre><h4><code>defmannerisms</code></h4><p>The last part of the API is <code>defmannerisms</code>. This is a helper macro for defining functions that wrap the core API and a given etiquette.</p>
 <pre><code class="clojure">(defmannerisms empty-coll
- [[identity &quot;must be truthy&quot;
-   coll? &quot;must be a collection&quot;]
-  [empty? &quot;must be empty&quot;]])
+  [[identity &quot;must be truthy&quot;
+    coll? &quot;must be a collection&quot;]
+   [empty? &quot;must be empty&quot;]])
 
-(proper-empty-coll? []) ; =&gt; true
-(rude-empty-coll? []) ; =&gt; false
-(bad-empty-coll-manners nil) ; =&gt; (&quot;must be truthy&quot;)
-(bad-empty-coll-manners &quot;&quot;) ; =&gt; (&quot;must be a collection&quot;)
-(bad-empty-coll-manners &quot;a&quot;) ; =&gt; (&quot;must be a collection&quot; &quot;must be empty&quot;)
+(proper-empty-coll? [])      ; → true
+(rude-empty-coll? [])        ; → false
+(bad-empty-coll-manners nil) ; → (&quot;must be truthy&quot;)
+(bad-empty-coll-manners &quot;&quot;)  ; → (&quot;must be a collection&quot;)
+(bad-empty-coll-manners &quot;a&quot;) ; → (&quot;must be a collection&quot; &quot;must be empty&quot;)
 (avow-empty-coll 1)
-; throws and AssertionError with the message:
+; throws an AssertionError with the message:
 ;   Invalid empty-coll: must be truthy
 
 ;; And so on.
-</code></pre><h3>Composability</h3><p>With version 0.3.0, etiquettes can now contain coaches.</p><p>The abstraction made to accomplish this was to make a matter a sequence of coaches by converting predicate message pairs into coaches. You probably do not care about that though so just look at the example below.</p>
-<pre><code class="clojure">(def my-map-coach (etiquette [[:a &quot;must have key a&quot;
-                               (comp number? :a) &quot;value at a must be a number&quot;]
-                              [:b &quot;must have key b&quot;]]))
+</code></pre><p><a id="composability"></a></p><h3>Composability</h3><p>Since etiquettes and manners can contain coaches, coaches can be composed of other coahes. In fact, when <em>manners</em> is processing an etiquette it transforms predicate message pairs into coaches as a first step.</p>
+<pre><code class="clojure">(def my-map-coach
+  (etiquette [[:a &quot;must have key a&quot;
+               (comp number? :a) &quot;value at a must be a number&quot;]
+              [:b &quot;must have key b&quot;]]))
 ;; Just for reference
-(my-map-coach {}) ; =&gt; (&quot;must have key a&quot; &quot;must have key b&quot;)
-(my-map-coach {:a 1}) ; =&gt; (&quot;must have key b&quot;)
-(my-map-coach {:a true}) ; =&gt; (&quot;value at a must be a number&quot; &quot;must have key b&quot;)
-(my-map-coach {:b 1}) ; =&gt; (&quot;must have key a&quot;)
+(my-map-coach {})        ; → (&quot;must have key a&quot; &quot;must have key b&quot;)
+(my-map-coach {:a 1})    ; → (&quot;must have key b&quot;)
+(my-map-coach {:a true}) ; → (&quot;value at a must be a number&quot; &quot;must have key b&quot;)
+(my-map-coach {:b 1})    ; → (&quot;must have key a&quot;)
 
 ;; We can copy a coach by making it the only coach in a one manner etiquette.
 (def same-map-coach (etiquette [[my-map-coach]]))
@@ -113,10 +119,10 @@
 (def same-map-coach (manners my-map-coach)) ;; This works too
 ;; Or with manner
 (def same-map-coach (manner my-map-coach))
-(same-map-coach {}) ; =&gt; (&quot;must have key a&quot; &quot;must have key b&quot;)
-(same-map-coach {:a 1}) ; =&gt; (&quot;must have key b&quot;)
-(same-map-coach {:a true}) ; =&gt; (&quot;value at a must be a number&quot; &quot;must have key b&quot;)
-(same-map-coach {:b 1}) ; =&gt; (&quot;must have key a&quot;)
+(same-map-coach {})        ; → (&quot;must have key a&quot; &quot;must have key b&quot;)
+(same-map-coach {:a 1})    ; → (&quot;must have key b&quot;)
+(same-map-coach {:a true}) ; → (&quot;value at a must be a number&quot; &quot;must have key b&quot;)
+(same-map-coach {:b 1})    ; → (&quot;must have key a&quot;)
 
 ;; We can also add on to a coach.
 (def improved-map-coach
@@ -128,23 +134,76 @@
           [:c &quot;must have key c&quot;
            (comp string? :c) &quot;value at c must be a string&quot;]))
 
-(improved-map-coach {}) ; =&gt; (&quot;must have key a&quot; &quot;must have key b&quot; &quot;must have key c&quot;)
-(improved-map-coach {:a 1}) ; =&gt; (&quot;must have key b&quot; &quot;must have key c&quot;)
-(improved-map-coach {:a true}) ; =&gt; (&quot;value at a must be a number&quot; &quot;must have key b&quot; &quot;must have key c&quot;)
-(improved-map-coach {:a true :b 1}) ; =&gt; (&quot;value at a must be a number&quot; &quot;must have key c&quot;)
-(improved-map-coach {:a 1 :b 1}) ; =&gt; (&quot;value at b must be a vector&quot; &quot;must have key c&quot;)
-(improved-map-coach {:a 1 :b [] :c &quot;yo&quot;}) ; =&gt; ()
-</code></pre><h3>With</h3><p>To avoid having to consistently pass in etiquette as a first argument you can use the <code>with-etiquette</code> macro.</p>
+(improved-map-coach {}) ; → (&quot;must have key a&quot; &quot;must have key b&quot; &quot;must have key c&quot;)
+(improved-map-coach {:a 1}) ; → (&quot;must have key b&quot; &quot;must have key c&quot;)
+(improved-map-coach {:a true}) ; → (&quot;value at a must be a number&quot; &quot;must have key b&quot; &quot;must have key c&quot;)
+(improved-map-coach {:a true :b 1}) ; → (&quot;value at a must be a number&quot; &quot;must have key c&quot;)
+(improved-map-coach {:a 1 :b 1}) ; → (&quot;value at b must be a vector&quot; &quot;must have key c&quot;)
+(improved-map-coach {:a 1 :b [] :c &quot;yo&quot;}) ; → ()
+</code></pre><p><a id="with"></a></p><h3>With</h3><p>To avoid having to consistently pass in etiquette as a first argument you can use the <code>with-etiquette</code> macro.</p>
 <pre><code class="clojure">(use &#39;manners.with)
 (with-etiquette [[even? &quot;must be even&quot;
                   #(zero? (mod % 6)) &quot;must be divisible by 6&quot;]
-                [#(&gt;= % 19) &quot;must be greater than or equal to 19&quot;]]
-  (proper? 10) ; =&gt; false
-  (invalid? 11) ; =&gt; true
-  (errors 19) ; =&gt; (&quot;must be even&quot;)
-  (bad-manners 20) ; =&gt; (&quot;must be divisible by 6&quot;)
-  (bad-manners 24)) ; =&gt; ()
-</code></pre><h2>Comparisons</h2><p>Clojure already has quite a few good validation libraries. This library is not greatly different and has no groundbreaking features. However, it does differ a couple of key ways.</p><p><em>manners</em> * is small and simple. * uses memoization for improved performance. * works on arbitrary values, not just maps.</p><p>The following are some descriptions of other validation libraries in the wild. They are listed alphabetically.</p>
+                 [#(&gt;= % 19) &quot;must be greater than or equal to 19&quot;]]
+  (proper? 10)      ; → false
+  (invalid? 11)     ; → true
+  (errors 19)       ; → (&quot;must be even&quot;)
+  (bad-manners 20)  ; → (&quot;must be divisible by 6&quot;)
+  (bad-manners 24)) ; → ()
+</code></pre><p><a id="bellman"></a></p><h2>Bellman</h2><p>A town crier knows how to get a message across effectively. The <a href="http://www.ryanmcg.com/manners/api/manners.bellman.html"><code>manners.bellman</code></a> namespace is for just that, getting the message across.</p><p>It is a set of functions for manipulating messages from coaches and creating new coaches with built in transformations. These functions are not particularly complex, any moderately experienced Clojurist could implement the same things in no time. Still, many applications of <em>manners</em> will find them useful so here they are, included in this library.</p><h4><code>prefix</code>, <code>suffix</code> and <code>modify</code></h4><p><code>prefix</code> is a higher order function which may be used to add a prefix to a sequence of messages.</p>
+<pre><code class="clojure">(require &#39;[manners.victorian :refer [as-coach]])
+(use &#39;manners.bellman)
+
+(def name-coach (manner string? &quot;must be a string&quot;))
+(def login-coach (as-coach (prefix &quot;login &quot;) name-coach :login))
+
+(login-coach {:login &quot;a string&quot;}) ; → ()
+(login-coach {:login :derp})      ; → (&quot;login must be a string&quot;)
+</code></pre><p><code>suffix</code> works the same way except it appends the given string to messages instead of prepending them. <code>modify</code> is the more generic form of suffix and prefix. <a href="http://www.ryanmcg.com/manners/api/manners.bellman.html#var-modify">Its source</a> is its best documentation.</p><h4><code>at</code></h4><p>The above usage of prefix with a map is very common. Thus, the supremely helpful <code>at</code> function may be used to apply a coach at some path within a map.</p>
+<pre><code class="clojure">(def login-coach (at name-coach :login)) ; Will work out to the same as above
+(def new-user-primary-login-coach (at name-coach :new-user :primary-login))
+
+(new-user-primary-login-coach
+  {:new-user {:primary-login &quot;hmm&quot;}}) ; → ()
+(new-user-primary-login-coach
+  {:new-user
+    {:primary-login &#39;not-a-string}}) ; → (&quot;new-user primary-login must be a string&quot;)
+</code></pre><h4><code>specifiying</code> (including <code>formatting</code> and <code>invoking</code>)</h4><p><code>specifiying</code> is higher order function that creates a coach from another coach and a function to be called on messages returned by that given coach and the value the coach is called on. <strong><em>What?</em></strong></p><p>Let&rsquo;s look at <code>formatting</code> and <code>invoking</code> to clarify.</p>
+<pre><code class="clojure">;; formatting and invoking are defined simply.
+(def formatting (partial specifiying format))
+(def invoking (partial specifiying (fn [f v] (f v))))
+</code></pre><p>Now, we can apply formatting and invoking to different coaches to see what the result is.</p>
+<pre><code class="clojure">(def truthy-coach (formatting (manner identity &quot;%s is not truthy&quot;)))
+(truthy-coach false) ; → (&quot;false is not truthy&quot;)
+(truthy-coach nil)   ; → (&quot;nil is not truthy&quot;)
+
+;; Of course it is still a working coach
+(truthy-coach 1) ; → ()
+
+;; The same coach could be implemented with invoking like so:
+(invoking (manner identity (fn [v] (str v &quot; is not truthy&quot;))))
+
+;; Or the more generic, specifying, like so:
+(specifiying (fn [m v] (str v m)) (manner identity &quot;is not truthy&quot;))
+</code></pre><h2>Really</h2><p>The <a href="http://www.ryanmcg.com/manners/api/manners.really.html"><code>manners.really</code></a> defines two public macros, <code>really</code> and <code>verily</code>. The minor difference is pointed out below. The purpose of these macros is to make it just a little bit easier to define coaches of a single predicate message pair.</p>
+<pre><code class="clojure">(use &#39;manners.really)
+((really &quot;must be a&quot; string?) 1) ; → (&quot;must be a string&quot;)
+((really &quot;must be&quot; &lt; 10) 19)     ; → (&quot;must be &lt; 10&quot;)
+</code></pre><p>The difference between verily and really is how trailing arguments are included in a generated message.</p>
+<pre><code class="clojure">(def ten 10)
+((really &quot;must be&quot; &lt; ten) 19) ; → (&quot;must be &lt; 10&quot;)
+((verily &quot;must be&quot; &lt; ten) 19) ; → (&quot;must be &lt; ten&quot;)
+
+;; Expressions work too.
+(defn less-then [x] (fn [y] (&lt; y x)))
+((really &quot;must be&quot; (less-than ten)) 19) ; → (&quot;must be less than ten&quot;)
+</code></pre><p><a id="comparisons"></a></p><h2>Comparisons</h2><p>Clojure already has quite a few good validation libraries. This library is not greatly different and has no groundbreaking features. However, it does differ a couple of key ways.</p><p><em>manners</em></p>
+<ul>
+  <li>is simple</li>
+  <li>feature rich</li>
+  <li>uses memoization for to avoid doing the same thing more than once</li>
+  <li>works on arbitrary values, not just maps.</li>
+</ul><p>The following are some descriptions of other validation libraries in the wild. They are listed alphabetically.</p>
 <ul>
   <li><p><a href="https://github.com/leonardoborges/bouncer"><em>bouncer</em></a> is a neat DSL for  validating maps which works particularly well on nested maps. It accepts  predicates as validators and even checks custom meta on those predicates for  special behaviour like message formatting. A common trend in other validation  libraries, it returns a custom formated data structure:</p>
   <blockquote><p><code>validate</code> takes a map and one or more validation forms and returns a vector.</p><p>The first element in this vector contains a map of the error messages, whereas the second element contains the original map, augmented with the error messages.</p>
@@ -157,15 +216,17 @@
   <li><a href="https://github.com/weavejester/valip"><em>valip</em></a> is perhaps the must similar of  the validation libraries to <em>manners</em> in that it is based on the simple  application of predicates. However, its use does not differ greatly from  <em>validateur</em> or <em>mississippi</em>. It also provides <a href="https://github.com/weavejester/valip/blob/master/src/valip/predicates.clj">a helpful suite of predicates  and higher-order, predicate generating functions</a> which are  compatible with <em>manners</em> (since they are just predicates).</li>
   <li><p><a href="https://github.com/logaan/vlad"><em>vlad</em></a> is another general purpose validation library.</p>
   <blockquote><p>Vlad is an attempt at providing convenient and simple validations. Vlad is purely functional and makes no assumptions about your data. It can be used for validating html form data just as well as it can be used to validate your csv about cats.</p>
-  </blockquote></li>
-</ul><p>I think its greatest strength is <a href="https://github.com/logaan/vlad#composition">its composition  abilities</a>. Etiquettes in  <em>manners</em> are just vectors so they can easily be constructed together. Vlad&rsquo;s  <code>chain</code> method stops checking after the first failed validator. I have since  added a feature to <em>manners</em> to provide similar support (multiple predicate  message pairs in a single manner).</p><p>Clearly validating maps is a common problem in Clojure. A common use case is the web application which needs to validate its parameters. Another is custom maps without a strongly defined (i.e. typed) schema.</p><p>Although it may be less common I find there are cases where validating arbitrary values is very useful. None of the above work with non-maps nor could they be easily modified to do so because they are, by design meant for keyed data structures.</p><p>Having been primarily doing Rails development for my, so far, short professional career I&rsquo;ve become accustomed to keyed errors but I have rarely found much value in them. When I want to flash a message to a user I desire a well worded message for the given context and <code>Model#errors.full_messages</code> has never been it. A simple sequence of messages is almost always preferable.</p><p>In an effort to be more generic this library differs from those above by not caring on what field an error occurred. There is no concept of a value needing to have fields at all. Another consequence of not requiring fields is that validating related fields is easier. Consider the following etiquette and data.</p>
+  </blockquote><p>So can manners.</p><p>I have been inspired by vald though. Its <a href="https://github.com/logaan/vlad#composition">ability to compose</a> is so valuable it seems necessary which is why I implemented something similar in manners (i.e. coaches made of coaches).</p><p>Another interesting part of vlad is its use of protocols.</p>
+  <blockquote><p>Validations are not tied to any particular data type. They just need to implement the vlad.validation-types/Validation protocol. A default implementation has been made for clojure.lang.IFn.</p>
+  </blockquote><p><em>manners</em> does not do anything like this. I am not convinced it really makes sense for <em>manners</em>.</p></li>
+</ul><p>Clearly validating maps is a common problem in Clojure. An example use case is a web application which needs to validate its parameters. Another is custom maps without a strongly defined (i.e. typed) schema.</p><p>Although it may be less common I find there are cases where validating arbitrary values is very useful. Many of libraries listed above do not work with non-maps nor could they be easily modified to do so because they are, by design meant for keyed data structures.</p><p>With <em>manners</em> there is no concept of a value having a field at all. One consequence of not requiring fields is that validating related fields is easier. Consider the following etiquette and data.</p>
 <pre><code class="clojure">(def data {:count 3 :words [&quot;big&quot; &quot;bad&quot; &quot;wolf&quot;]})
 (defn count-words-equal? [{cnt :count words :words}]
   (= cnt (count words)))
 (def etq
   [[(comp number? :count) &quot;count must be a number&quot;]
    [count-words-equal? &quot;count must equal the length of the words sequence&quot;]])
-</code></pre><p>This etiquette works fine with <em>manners</em>. Other libraries make validating relationships between fields much more difficult by limiting a predicate&rsquo;s application to the value of the field it is keyed to. The benefit of doing it that way is you can concisely define per field validations. The alternative, having to drill down to the field you mean to apply your predicate to, may seem like more work but it is still quite concise when using <code>comp</code> (see above example).</p><h2>Test</h2><p>Vanilla and delicious <code>clojure.test</code>.</p>
+</code></pre><p>This works fine with <em>manners</em>. Other libraries make validating relationships between fields much more difficult by limiting a predicate&rsquo;s application to the value of the field it is keyed to. The benefit of doing it that way is you can concisely define per field validations. The alternative, having to drill down to the field you mean to apply your predicate to, may seem like more work but it is still quite concise when using <code>comp</code> (see above example) and the <a href="http://www.ryanmcg.com/manners/api/manners.bellman.html"><em>bellman</em></a> namespace is pretty helpful in this situation too.</p><h2>Test</h2><p>Vanilla and delicious <code>clojure.test</code>.</p>
 <pre><code class="bash">lein test
 </code></pre><h2>License</h2><p>Copyright © 2014 Ryan McGowan</p><p>Distributed under the Eclipse Public License, the same as Clojure.</p></article></div><footer><div class="content"><p id="credit">This website was <a href="https://github.com/RyanMcG/incise">incised</a>.</p></div><script type="text/javascript">//<![CDATA[
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
