@@ -2,6 +2,19 @@
   (:require [manners.victorian :refer :all]
             [clojure.test :refer :all]))
 
+(deftest test-as-coach
+  (is (= true
+         (:manners.victorian/coach (meta (as-coach (constantly [])))))
+      "Adds meta to returned function")
+  (are [fns v] (= ((apply comp fns) v)
+                  ((apply as-coach fns) v))
+       [inc inc inc] 3
+       [inc inc inc] 1388
+       [inc dec inc] 4))
+
+(deftest test-coach?
+  (is (coach? (as-coach (constantly [])))))
+
 (def d-msg "should start with d")
 (def keyword-msg "must be a keyword")
 (def d-keyword-coach
@@ -115,9 +128,9 @@
 
     (testing "recognizes a proper value"
       (is (proper? etq {:barb :cats
-                            :hey 'yo
-                            :anything-else 3})))
-    (testing "gets all parellel messages from nested coach"
+                        :hey 'yo
+                        :anything-else 3})))
+    (testing "gets all parallel messages from nested coach"
       (is (= (list msg1 msg3 msg5)
              (bad-manners etq [1 2]))))
     (testing "can get to extended messages if base coach passes"
@@ -133,7 +146,7 @@
 
 (defmacro catch-message [& body]
   `(try
-    ~@body
+     ~@body
      (catch AssertionError e#
        (.getMessage e#))))
 

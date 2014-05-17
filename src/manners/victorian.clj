@@ -1,4 +1,6 @@
 (ns manners.victorian
+  "The primary namespace containing all of the core functions for creating and
+  using coaches."
   (:require [clojure.string :as s]))
 
 (defn- wrap-try
@@ -18,10 +20,10 @@
 
 (defn as-coach
   "Memoize and mark the given function as a coach with the meta {:coach true}."
-  [coach-fn]
+  [& coaching-fns]
   (with-meta
-    (memoize coach-fn)
-    {:coach true}))
+    (memoize (apply comp coaching-fns))
+    {::coach true}))
 
 (defn- pred-msg->coach
   "Create a coach from a predicate and a message. Falter if message is nil."
@@ -36,7 +38,7 @@
 (def coach?
   "A predicate which checks to see if the given value is a coach. It does this
   by seeing if the meta :coach key is true."
-  (comp true? :coach meta))
+  (comp true? ::coach meta))
 
 (defn- manner->coaches
   "Return a lazy sequence of coaches from the given manner."
