@@ -1,6 +1,6 @@
 {:site-title "manners"
  :author "Ryan McGowan"
- :parse-defaults {:layout :vm}
+ :parse-defaults {:transformers [:html-header-anchors :vm-layout]}
  :stefon {:asset-roots ["dev-resources/assets"]
           :manifest-file "dev-resources/manifest.json"
           :precompiles ["vm/javascripts/vm.js.stefon"
