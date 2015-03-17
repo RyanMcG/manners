@@ -18,12 +18,15 @@
        (throw (AssertionError. (str full-prefix (s/join ", " bad-manners)))))))
   ([bad-manners] (falter nil bad-manners)))
 
+(deftype Coach [f]
+  clojure.lang.IFn
+  (invoke [this value] (f value))
+  (applyTo [this args] (apply f args)))
+
 (defn as-coach
   "Memoize and mark the given function as a coach with the meta {:coach true}."
   [& coaching-fns]
-  (with-meta
-    (memoize (apply comp coaching-fns))
-    {::coach true}))
+  (Coach. (memoize (apply comp coaching-fns))))
 
 (defn- pred-msg->coach
   "Create a coach from a predicate and a message. Falter if message is nil."
@@ -38,7 +41,7 @@
 (def coach?
   "A predicate which checks to see if the given value is a coach. It does this
   by seeing if the meta :coach key is true."
-  (comp true? ::coach meta))
+  (partial instance? Coach))
 
 (defn- manner->coaches
   "Return a lazy sequence of coaches from the given manner."

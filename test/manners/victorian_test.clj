@@ -3,14 +3,15 @@
             [clojure.test :refer :all]))
 
 (deftest test-as-coach
-  (is (= true
-         (:manners.victorian/coach (meta (as-coach (constantly [])))))
-      "Adds meta to returned function")
-  (are [fns v] (= ((apply comp fns) v)
-                  ((apply as-coach fns) v))
-       [inc inc inc] 3
-       [inc inc inc] 1388
-       [inc dec inc] 4))
+  (let [coach (as-coach (constantly []))]
+    (is (= (apply coach [1]) []) "applyable")
+    (is (= (coach 1) []) "callable"))
+  (testing "composes like comp"
+    (are [fns v] (= ((apply comp fns) v)
+                    ((apply as-coach fns) v))
+         [inc inc inc] 3
+         [inc inc inc] 1388
+         [inc dec inc] 4)))
 
 (deftest test-coach?
   (is (coach? (as-coach (constantly [])))))
@@ -159,5 +160,3 @@
       (is (= (pfunc v) (func odd-number-etq v))))
     (is (= (catch-message (avow 'odd-number odd-number-etq v))
            (catch-message (avow-odd-number v))))))
-
-#_(run-tests)
