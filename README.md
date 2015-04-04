@@ -213,7 +213,7 @@ functions that wrap the core API and a given etiquette.
 <a id="composability"></a>
 ### Composability
 
-Since etiquettes and manners can contain coaches, coaches can be composed of other coahes.
+Since etiquettes and manners can contain coaches, coaches can be composed of other coaches.
 In fact, when *manners* is processing an etiquette it transforms predicate message pairs into coaches as a first step.
 
 ```clojure
