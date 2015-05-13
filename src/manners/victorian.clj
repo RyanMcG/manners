@@ -12,8 +12,8 @@
 
 (defn falter
   "Throw an AssertionError when there are bad manners."
-  ([prefix-sym bad-manners]
-   (let [full-prefix (when prefix-sym (str "Invalid " prefix-sym ": "))]
+  ([prefix-str bad-manners]
+   (let [full-prefix (when prefix-str (str "Invalid " prefix-str ": "))]
      (when-not (empty? bad-manners)
        (throw (AssertionError. (str full-prefix (s/join ", " bad-manners)))))))
   ([bad-manners] (falter nil bad-manners)))
@@ -24,7 +24,12 @@
   (applyTo [this args] (apply f args)))
 
 (defn as-coach
-  "Memoize and mark the given function as a coach with the meta {:coach true}."
+  "Create a coach from the composition of the given functions."
+  [& coaching-fns]
+  (Coach. (apply comp coaching-fns)))
+
+(defn as-memo-coach
+  "Like as-coach, but memoize before wrapping with Coach."
   [& coaching-fns]
   (Coach. (memoize (apply comp coaching-fns))))
 
@@ -32,7 +37,7 @@
   "Create a coach from a predicate and a message. Falter if message is nil."
   [predicate message]
   (if (nil? message)
-    (falter 'message ["must not be nil"])
+    (falter "message" ["must not be nil"])
     (as-coach
       (fn [value]
         (sequence (when-not ((wrap-try predicate) value)
