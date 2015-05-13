@@ -12,4 +12,4 @@
                                   [com.ryanmcg/incise-codox "0.2.0"]]}
              :1.4 {:dependencies [[org.clojure/clojure "1.4.0"]]}
              :1.5 {:dependencies [[org.clojure/clojure "1.5.1"]]}
-             :1.7 {:dependencies [[org.clojure/clojure "1.7.0-alpha5"]]}})
+             :1.7 {:dependencies [[org.clojure/clojure "1.7.0-beta2"]]}})
