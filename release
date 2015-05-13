@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -e
+
+lein test
+lein repack deploy
+git push
+lein incise deploy
