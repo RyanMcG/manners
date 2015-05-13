@@ -101,7 +101,7 @@
 ;   Invalid empty-coll: must be truthy
 
 ;; And so on.
-</code></pre><p><a id="composability"></a></p><h3><a class="incise-generated-tag" name="composability" href="#composability"></a>Composability</h3><p>Since etiquettes and manners can contain coaches, coaches can be composed of other coahes. In fact, when <em>manners</em> is processing an etiquette it transforms predicate message pairs into coaches as a first step.</p>
+</code></pre><p><a id="composability"></a></p><h3><a class="incise-generated-tag" name="composability" href="#composability"></a>Composability</h3><p>Since etiquettes and manners can contain coaches, coaches can be composed of other coaches. In fact, when <em>manners</em> is processing an etiquette it transforms predicate message pairs into coaches as a first step.</p>
 <pre><code class="clojure">(def my-map-coach
   (etiquette [[:a "must have key a"
                (comp number? :a) "value at a must be a number"]
