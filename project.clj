@@ -6,6 +6,7 @@
   :dependencies [[org.clojure/clojure "1.6.0"]]
   :profiles {:dev {:aliases {"incise" ^:pass-through-help ["run" "-m" "incise.core"]}
                    :resource-paths ["dev-resources"]
+                   :plugins [[lein-repack "0.2.10"]]
                    :dependencies [[com.ryanmcg/incise-vm-layout "0.5.0"]
                                   [incise "0.5.0"]
                                   [com.ryanmcg/incise-codox "0.2.0"]]}
